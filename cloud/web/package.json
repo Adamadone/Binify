@@ -1,0 +1,25 @@
+{
+  "name": "@bin/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@bin/api": "*",
+    "@tanstack/react-query": "^5.68.0",
+    "@trpc/client": "^11.0.0-rc.833",
+    "@trpc/tanstack-react-query": "^11.0.0-rc.833",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react-swc": "^3.8.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0"
+  }
+}
