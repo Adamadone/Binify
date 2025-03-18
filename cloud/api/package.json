@@ -3,7 +3,7 @@
 	"private": true,
 	"main": "src/index",
 	"scripts": {
-		"dev": "nodemon --watch src -e ts --exec 'npm run build && npm run start'",
+		"dev": "nodemon --watch src --watch .env -e ts --exec 'npm run build && dotenvx run -- npm run start'",
 		"build": "tsc",
 		"start": "node dist/main.js",
 		"check": "tsc --noEmit && npm run lint && prisma validate",
@@ -19,9 +19,9 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
+		"@dotenvx/dotenvx": "^1.39.0",
 		"@types/cors": "^2.8.17",
 		"@types/express": "^5.0.0",
-		"dotenv": "^16.4.7",
 		"nodemon": "^3.1.9",
 		"prisma": "^6.5.0",
 		"typescript": "^5.8.2"

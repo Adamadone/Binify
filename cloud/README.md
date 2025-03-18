@@ -27,3 +27,8 @@ Under the hood it's just standart GET and POST requests.
 
 We use [biome](https://biomejs.dev/) for linting and formatting.
 To auto fix issues run `npm run lint:fix` in one of the apps.
+
+## Dynamic configuration
+
+All dynamic configuration (like api url, oauth keys) are stored in environment variables so that the app can be easily deployed.
+Values for local development are stored in `.env` files.

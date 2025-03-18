@@ -1,6 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./libs/trpc";
 import { HomePage } from "./pages/HomePage";
-import { queryClient } from "./trpc";
 
 export const App = () => (
 	<QueryClientProvider client={queryClient}>

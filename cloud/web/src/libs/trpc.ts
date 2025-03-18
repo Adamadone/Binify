@@ -5,6 +5,7 @@ import {
 	createTRPCContext,
 	createTRPCOptionsProxy,
 } from "@trpc/tanstack-react-query";
+import { env } from "../env";
 
 export const { TRPCProvider, useTRPC, useTRPCClient } =
 	createTRPCContext<AppRouter>();
@@ -12,7 +13,7 @@ export const { TRPCProvider, useTRPC, useTRPCClient } =
 export const queryClient = new QueryClient();
 
 const trpcClient = createTRPCClient<AppRouter>({
-	links: [httpBatchLink({ url: "http://localhost:4000/trpc" })],
+	links: [httpBatchLink({ url: `${env.VITE_API_URL}/trpc` })],
 });
 
 export const trpc = createTRPCOptionsProxy<AppRouter>({

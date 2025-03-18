@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { env } from "../env";
 
 export const prismaClient = new PrismaClient({
-	// TODO: make it configurable
-	datasourceUrl: "postgresql://postgres:postgres@localhost:5432/bin",
+	datasourceUrl: env.DATABASE_URL,
 });
