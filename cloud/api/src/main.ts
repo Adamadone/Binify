@@ -3,19 +3,22 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import cors from "cors";
 import express from "express";
 import { z } from "zod";
+import { prismaClient } from "./libs/prisma";
 
 const { router, procedure } = initTRPC.create();
 
 const createContext = (_opts: trpcExpress.CreateExpressContextOptions) => ({});
 
 const appRouter = router({
-	testEndpoint: procedure
+	createBin: procedure
 		.input(z.object({ name: z.string() }))
-		.query(async ({ input }) => {
-			return {
-				data: `hello, ${input.name}!`,
-			};
+		.mutation(async ({ input }) => {
+			const bin = prismaClient.bin.create({ data: { name: input.name } });
+			return bin;
 		}),
+	listBins: procedure.query(async () => {
+		return prismaClient.bin.findMany();
+	}),
 });
 
 export type AppRouter = typeof appRouter;

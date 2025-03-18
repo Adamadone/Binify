@@ -6,11 +6,12 @@
 		"dev": "nodemon --watch src -e ts --exec 'npm run build && npm run start'",
 		"build": "tsc",
 		"start": "node dist/main.js",
-		"check": "tsc --noEmit && npm run lint",
+		"check": "tsc --noEmit && npm run lint && prisma validate",
 		"lint": "biome check",
-		"lint:fix": "biome check --write"
+		"lint:fix": "biome check --write && prisma format"
 	},
 	"dependencies": {
+		"@prisma/client": "^6.5.0",
 		"@trpc/server": "^11.0.0-rc.833",
 		"cors": "^2.8.5",
 		"express": "^4.21.2",
@@ -20,7 +21,9 @@
 		"@biomejs/biome": "1.9.4",
 		"@types/cors": "^2.8.17",
 		"@types/express": "^5.0.0",
+		"dotenv": "^16.4.7",
 		"nodemon": "^3.1.9",
+		"prisma": "^6.5.0",
 		"typescript": "^5.8.2"
 	}
 }
