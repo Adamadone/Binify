@@ -3,5 +3,8 @@
   "workspaces": [
     "./api",
     "./web"
-  ]
+  ],
+  "engines": {
+    "node": "22"
+  }
 }

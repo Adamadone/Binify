@@ -1,0 +1,15 @@
+name: Check cloud app
+on: [pull_request]
+jobs:
+  cloud_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - name: Check web
+        run: cd cloud/web && npm ci && npm run check
+      - name: Check api
+        run: cd cloud/api && npm ci && npm run check

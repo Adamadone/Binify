@@ -1,28 +1,33 @@
 import { initTRPC } from "@trpc/server";
-import * as trpcExpress from '@trpc/server/adapters/express';
+import * as trpcExpress from "@trpc/server/adapters/express";
+import cors from "cors";
+import express from "express";
 import { z } from "zod";
-import express from "express"
-import cors from 'cors'
 
-const { router, procedure, } = initTRPC.create()
+const { router, procedure } = initTRPC.create();
 
 const createContext = (_opts: trpcExpress.CreateExpressContextOptions) => ({});
 
 const appRouter = router({
-  testEndpoint: procedure.input(z.object({ name: z.string() })).query(async ({ input }) => {
-    return {
-      data: `hello, ${input.name}!`
-    }
-  })
-})
+	testEndpoint: procedure
+		.input(z.object({ name: z.string() }))
+		.query(async ({ input }) => {
+			return {
+				data: `hello, ${input.name}!`,
+			};
+		}),
+});
 
 export type AppRouter = typeof appRouter;
 
-const app = express()
+const app = express();
 
-app.use(cors({origin: "*"}))
-app.use("/trpc", trpcExpress.createExpressMiddleware({ router: appRouter, createContext }))
+app.use(cors({ origin: "*" }));
+app.use(
+	"/trpc",
+	trpcExpress.createExpressMiddleware({ router: appRouter, createContext }),
+);
 
 // TODO: make it configurable
-app.listen(4000)
-console.log("App listening on http://localhost:4000")
+app.listen(4000);
+console.log("App listening on http://localhost:4000");
