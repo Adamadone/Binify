@@ -32,3 +32,7 @@ To auto fix issues run `npm run lint:fix` in one of the apps.
 
 All dynamic configuration (like api url, oauth keys) are stored in environment variables so that the app can be easily deployed.
 Values for local development are stored in `.env` files.
+
+## FE components
+
+FE components are bootstraped from [shadcn](https://ui.shadcn.com/) and for styling we use [Tailwind CSS](https://tailwindcss.com/).
