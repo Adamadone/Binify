@@ -1,5 +1,9 @@
 name: Check cloud app
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - "cloud/**"
+      - ".github/**"
 jobs:
   cloud_check:
     runs-on: ubuntu-latest
