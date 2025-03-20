@@ -1,10 +1,9 @@
-import { initTRPC } from "@trpc/server";
 import { z } from "zod";
+import { authenticatedProcedure } from "./auth/trpcAuth";
 import { prismaClient } from "./libs/prisma";
+import { procedure, router } from "./libs/trpc";
 
-const { router, procedure } = initTRPC.create();
-
-export const appRouter = router({
+export const trpcRouter = router({
 	createBin: procedure
 		.input(z.object({ name: z.string() }))
 		.mutation(async ({ input }) => {
@@ -14,6 +13,9 @@ export const appRouter = router({
 	listBins: procedure.query(async () => {
 		return prismaClient.bin.findMany();
 	}),
+	userMe: authenticatedProcedure.query(async ({ ctx }) => {
+		return ctx.user;
+	}),
 });
 
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof trpcRouter;
