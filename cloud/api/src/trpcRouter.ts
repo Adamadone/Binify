@@ -1,3 +1,4 @@
+import type { inferRouterOutputs } from "@trpc/server";
 import { z } from "zod";
 import { authenticatedProcedure } from "./auth/trpcAuth";
 import { prismaClient } from "./libs/prisma";
@@ -18,4 +19,5 @@ export const trpcRouter = router({
 	}),
 });
 
-export type AppRouter = typeof trpcRouter;
+export type TrpcRouter = typeof trpcRouter;
+export type TrpcOutputs = inferRouterOutputs<TrpcRouter>;

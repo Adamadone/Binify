@@ -36,3 +36,4 @@ Values for local development are stored in `.env` files.
 ## FE components
 
 FE components are bootstraped from [shadcn](https://ui.shadcn.com/) and for styling we use [Tailwind CSS](https://tailwindcss.com/).
+To add a component run `npx shadcn add` in **`web`** directory.

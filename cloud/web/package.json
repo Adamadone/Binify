@@ -12,8 +12,10 @@
 	},
 	"dependencies": {
 		"@bin/api": "*",
+		"@radix-ui/react-label": "^2.1.2",
 		"@radix-ui/react-slot": "^1.1.2",
 		"@tanstack/react-query": "^5.68.0",
+		"@tanstack/react-router": "^1.114.25",
 		"@trpc/client": "^11.0.0-rc.833",
 		"@trpc/tanstack-react-query": "^11.0.0-rc.833",
 		"class-variance-authority": "^0.7.1",
@@ -30,6 +32,7 @@
 		"@types/react": "^19.0.10",
 		"@types/react-dom": "^19.0.4",
 		"@vitejs/plugin-react-swc": "^3.8.0",
+		"shadcn": "^2.4.0-canary.17",
 		"tailwindcss": "^4.0.14",
 		"typescript": "~5.7.2",
 		"vite": "^6.2.0"

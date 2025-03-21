@@ -1,9 +1,13 @@
 import { QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider } from "@tanstack/react-router";
+import { StorageProvider } from "./context/StorageContext";
+import { router } from "./libs/tanstackRouter";
 import { queryClient } from "./libs/trpc";
-import { HomePage } from "./pages/HomePage";
 
 export const App = () => (
 	<QueryClientProvider client={queryClient}>
-		<HomePage />
+		<StorageProvider>
+			<RouterProvider router={router} />
+		</StorageProvider>
 	</QueryClientProvider>
 );

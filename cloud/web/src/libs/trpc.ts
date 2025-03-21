@@ -1,4 +1,5 @@
-import type { AppRouter } from "@bin/api";
+import { loadStorage } from "@/context/StorageContext";
+import type { TrpcRouter } from "@bin/api";
 import { QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import {
@@ -8,15 +9,23 @@ import {
 import { env } from "../env";
 
 export const { TRPCProvider, useTRPC, useTRPCClient } =
-	createTRPCContext<AppRouter>();
+	createTRPCContext<TrpcRouter>();
 
 export const queryClient = new QueryClient();
 
-const trpcClient = createTRPCClient<AppRouter>({
-	links: [httpBatchLink({ url: `${env.VITE_API_URL}/trpc` })],
+const trpcClient = createTRPCClient<TrpcRouter>({
+	links: [
+		httpBatchLink({
+			url: `${env.VITE_API_URL}/trpc`,
+			headers: () => {
+				// TODO: this is inefficient, should load just token
+				return { authorization: loadStorage().token };
+			},
+		}),
+	],
 });
 
-export const trpc = createTRPCOptionsProxy<AppRouter>({
+export const trpc = createTRPCOptionsProxy<TrpcRouter>({
 	client: trpcClient,
 	queryClient,
 });

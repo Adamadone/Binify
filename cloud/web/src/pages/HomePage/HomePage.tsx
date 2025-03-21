@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button";
 import { useQuery } from "@tanstack/react-query";
-import { trpc } from "../libs/trpc";
+import { trpc } from "../../libs/trpc";
 
 export const HomePage = () => {
 	const binListQuery = useQuery(trpc.listBins.queryOptions());
