@@ -1,6 +1,5 @@
 import { rootRoute } from "@/libs/tanstackRouter";
 import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
-import { devicesRoute } from "./DevicesPage/route";
 
 export const adminRoute = createRoute({
 	getParentRoute: () => rootRoute,
@@ -10,5 +9,3 @@ export const adminRoute = createRoute({
 		"AdminRouteGuard",
 	),
 });
-
-export const adminRoutes = adminRoute.addChildren([devicesRoute]);
