@@ -1,4 +1,5 @@
 import { useStorage } from "@/context/StorageContext";
+import { isTokenValid } from "@/helpers/isTokenValid";
 import { trpc } from "@/libs/trpc";
 import { homeRoute } from "@/pages/HomePage/route";
 import { devicesRoute } from "@/pages/admin/DevicesPage/route";
@@ -26,8 +27,7 @@ import {
 export const Layout = () => {
 	const storage = useStorage();
 
-	// TODO: check jwt validity
-	const isLoggedIn = !!storage.data.token;
+	const isLoggedIn = !!storage.data.token && isTokenValid(storage.data.token);
 	const userMeQuery = useQuery(
 		trpc.userMe.queryOptions(undefined, { enabled: isLoggedIn }),
 	);
