@@ -1,13 +1,10 @@
-import { Layout } from "@/components/Layout";
 import { homeRoute } from "@/pages/HomePage/route";
 import { loginRoute } from "@/pages/LoginPage/route";
 import { tokenRoute } from "@/pages/TokenCallbackPage/route";
 import { adminRoutes } from "@/pages/admin/routes";
 import { createRootRoute, createRouter } from "@tanstack/react-router";
 
-export const rootRoute = createRootRoute({
-	component: Layout,
-});
+export const rootRoute = createRootRoute();
 
 const routeTree = rootRoute.addChildren([
 	homeRoute,

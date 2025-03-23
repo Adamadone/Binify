@@ -24,6 +24,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/sidebar";
+import { useStorage } from "@/context/StorageContext";
 
 export function NavUser({
 	user,
@@ -34,12 +35,17 @@ export function NavUser({
 	};
 }) {
 	const { isMobile } = useSidebar();
+	const storage = useStorage();
 
 	const initials = user.name
 		.split(" ")
 		.map((word) => word.substring(0, 1))
 		.join("")
 		.toUpperCase();
+
+	const handleLogout = () => {
+		storage.set("token", undefined);
+	};
 
 	return (
 		<SidebarMenu>
@@ -101,7 +107,7 @@ export function NavUser({
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
+						<DropdownMenuItem onClick={handleLogout}>
 							<LogOutIcon />
 							Log out
 						</DropdownMenuItem>
