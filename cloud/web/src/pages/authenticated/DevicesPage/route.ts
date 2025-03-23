@@ -1,8 +1,8 @@
 import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
-import { adminRoute } from "../route";
+import { authenticatedRoute } from "../route";
 
 export const devicesRoute = createRoute({
-	getParentRoute: () => adminRoute,
+	getParentRoute: () => authenticatedRoute,
 	path: "/devices",
 	component: lazyRouteComponent(() => import("./DevicesPage"), "DevicesPage"),
 });

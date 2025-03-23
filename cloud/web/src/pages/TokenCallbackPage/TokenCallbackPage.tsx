@@ -1,7 +1,7 @@
 import { useStorage } from "@/context/StorageContext";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { devicesRoute } from "../admin/DevicesPage/route";
+import { devicesRoute } from "../authenticated/DevicesPage/route";
 import { tokenRoute } from "./route";
 
 export const TokenCallbackPage = () => {
@@ -12,7 +12,7 @@ export const TokenCallbackPage = () => {
 
 	useEffect(() => {
 		storage.set("token", search.token);
-		navigate({ to: devicesRoute.id });
+		navigate({ to: devicesRoute.fullPath });
 	}, [search.token, storage.set, navigate]);
 
 	return null;

@@ -1,10 +1,10 @@
-import { Layout } from "@/components/Layout";
+import { Layout } from "@/components/Layout/Layout";
 import { Button } from "@/components/button";
 import { useQuery } from "@tanstack/react-query";
 import { trpc } from "../../libs/trpc";
 
 export const HomePage = () => {
-	const binListQuery = useQuery(trpc.listBins.queryOptions());
+	const binListQuery = useQuery(trpc.bins.listBins.queryOptions({}));
 
 	return (
 		<Layout title="Home">

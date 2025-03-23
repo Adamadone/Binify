@@ -1,11 +1,11 @@
 import { rootRoute } from "@/libs/tanstackRouter";
 import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
 
-export const adminRoute = createRoute({
+export const authenticatedRoute = createRoute({
 	getParentRoute: () => rootRoute,
-	path: "/admin",
+	id: "authenticated",
 	component: lazyRouteComponent(
-		() => import("./AdminRouteGuard"),
-		"AdminRouteGuard",
+		() => import("./AuthenticatedRouteGuard"),
+		"AuthenticatedRouteGuard",
 	),
 });

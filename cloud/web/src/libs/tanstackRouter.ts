@@ -1,7 +1,7 @@
 import { homeRoute } from "@/pages/HomePage/route";
 import { loginRoute } from "@/pages/LoginPage/route";
 import { tokenRoute } from "@/pages/TokenCallbackPage/route";
-import { adminRoutes } from "@/pages/admin/routes";
+import { authenticatedRoutes } from "@/pages/authenticated/routes";
 import { createRootRoute, createRouter } from "@tanstack/react-router";
 
 export const rootRoute = createRootRoute();
@@ -10,7 +10,7 @@ const routeTree = rootRoute.addChildren([
 	homeRoute,
 	loginRoute,
 	tokenRoute,
-	adminRoutes,
+	authenticatedRoutes,
 ]);
 export const router = createRouter({ routeTree });
 

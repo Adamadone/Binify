@@ -14,16 +14,56 @@ datasource db {
 }
 
 model Bin {
-  id   Int    @id @default(autoincrement())
-  name String
+  id             Int           @id @default(autoincrement())
+  deviceId       String        @unique @db.Uuid
+  activationCode String        @unique
+  activatedBin   ActivatedBin?
+}
+
+model ActivatedBin {
+  id          Int      @id @default(autoincrement())
+  name        String
+  activatedAt DateTime
+
+  binId Int @unique
+  bin   Bin @relation(fields: [binId], references: [id])
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Organization {
+  id      Int            @id @default(autoincrement())
+  name    String
+  bins    ActivatedBin[]
+  members Member[]
+}
+
+enum Role {
+  ADMIN
+  VIEWER
+}
+
+model Member {
+  role Role
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  organizationId Int          @unique
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@id([userId, organizationId])
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
+  id           Int     @id @default(autoincrement())
+  name         String
+  email        String  @unique
+  isSuperAdmin Boolean
 
   microsoftLogin MicrosoftLogin?
+  member         Member[]
 }
 
 model MicrosoftLogin {

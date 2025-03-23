@@ -1,22 +1,13 @@
 import type { inferRouterOutputs } from "@trpc/server";
-import { z } from "zod";
 import { authenticatedProcedure } from "./auth/trpcAuth";
-import { prismaClient } from "./libs/prisma";
-import { procedure, router } from "./libs/trpc";
+import { router } from "./libs/trpc";
+import { binsRouter } from "./router/binsRouter";
 
 export const trpcRouter = router({
-	createBin: procedure
-		.input(z.object({ name: z.string() }))
-		.mutation(async ({ input }) => {
-			const bin = prismaClient.bin.create({ data: { name: input.name } });
-			return bin;
-		}),
-	listBins: procedure.query(async () => {
-		return prismaClient.bin.findMany();
-	}),
 	userMe: authenticatedProcedure.query(async ({ ctx }) => {
 		return ctx.user;
 	}),
+	bins: binsRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

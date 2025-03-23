@@ -1,24 +1,20 @@
 import { useStorage } from "@/context/StorageContext";
 import { isTokenValid } from "@/helpers/isTokenValid";
-import { trpc } from "@/libs/trpc";
+import { useUserMeQuery } from "@/hooks/useUserMeQuery";
 import { homeRoute } from "@/pages/HomePage/route";
 import { loginRoute } from "@/pages/LoginPage/route";
-import { devicesRoute } from "@/pages/admin/DevicesPage/route";
 import type { TrpcOutputs } from "@bin/api";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { HomeIcon, MicrochipIcon, Trash2Icon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import type { ReactNode } from "react";
-import { DynamicContent, type RenderContent } from "./DynamicContent";
-import { NavUser } from "./NavUser";
-import { Button } from "./button";
-import { Separator } from "./separator";
+import { DynamicContent, type RenderContent } from "../DynamicContent";
+import { NavUser } from "../NavUser";
+import { Button } from "../button";
+import { Separator } from "../separator";
 import {
 	Sidebar,
 	SidebarContent,
 	SidebarFooter,
-	SidebarGroup,
-	SidebarGroupContent,
 	SidebarHeader,
 	SidebarInset,
 	SidebarMenu,
@@ -26,7 +22,8 @@ import {
 	SidebarMenuItem,
 	SidebarProvider,
 	SidebarTrigger,
-} from "./sidebar";
+} from "../sidebar";
+import { LayoutNavigation } from "./LayoutNavigation";
 
 export type LayoutProps = {
 	children: ReactNode;
@@ -37,9 +34,7 @@ export const Layout = ({ children, title }: LayoutProps) => {
 	const storage = useStorage();
 
 	const isLoggedIn = !!storage.data.token && isTokenValid(storage.data.token);
-	const userMeQuery = useQuery(
-		trpc.userMe.queryOptions(undefined, { enabled: isLoggedIn }),
-	);
+	const userMeQuery = useUserMeQuery();
 
 	const renderUser: RenderContent<TrpcOutputs["userMe"]> = (user) => {
 		return <NavUser user={user} />;
@@ -64,28 +59,7 @@ export const Layout = ({ children, title }: LayoutProps) => {
 					</SidebarMenu>
 				</SidebarHeader>
 				<SidebarContent>
-					<SidebarGroup>
-						<SidebarGroupContent className="flex flex-col gap-2">
-							<SidebarMenu>
-								<SidebarMenuItem>
-									<SidebarMenuButton asChild>
-										<Link to={homeRoute.id}>
-											<HomeIcon />
-											<span>Home</span>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-								<SidebarMenuItem>
-									<SidebarMenuButton asChild>
-										<Link to={devicesRoute.id}>
-											<MicrochipIcon />
-											<span>Devices</span>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
+					<LayoutNavigation />
 				</SidebarContent>
 				<SidebarFooter>
 					{isLoggedIn ? (
@@ -118,7 +92,7 @@ export const Layout = ({ children, title }: LayoutProps) => {
 							<h1 className="text-base font-medium">{title}</h1>
 						</div>
 					</header>
-					<div className="px-4 lg:px-6 pt-2 lg:pt-4">{children}</div>
+					<div className="px-4 lg:px-6 py-2 lg:py-4">{children}</div>
 				</div>
 			</SidebarInset>
 		</SidebarProvider>

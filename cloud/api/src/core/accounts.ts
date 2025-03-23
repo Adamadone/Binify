@@ -24,7 +24,7 @@ export const upsertMicrosoftLogin = ({
 					where: {
 						email,
 					},
-					create: { email, name },
+					create: { email, name, isSuperAdmin: false },
 				},
 			},
 		},
