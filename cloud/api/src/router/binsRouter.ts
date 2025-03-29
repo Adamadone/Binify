@@ -4,6 +4,8 @@ import { authenticatedProcedure } from "../auth/trpcAuth";
 import {
 	activateBin,
 	createBin,
+	deactivateBin,
+	listActivatedBinsForOrganization,
 	listBinsWithActivatedBinsAndOrganizations,
 } from "../core/bins";
 import { router } from "../libs/trpc";
@@ -61,7 +63,7 @@ export const binsRouter = router({
 				organizationId: z.number(),
 			}),
 		)
-		.mutation(async ({ input, ctx }) => {
+		.mutation(async ({ input, ctx }) =>
 			(await activateBin(input, ctx.user)).match(
 				(result) => result,
 				(err) => {
@@ -90,6 +92,59 @@ export const binsRouter = router({
 							return err satisfies never;
 					}
 				},
-			);
-		}),
+			),
+		),
+
+	deactivate: authenticatedProcedure
+		.input(z.object({ activatedBinId: z.number() }))
+		.mutation(async ({ input, ctx }) =>
+			(await deactivateBin(input.activatedBinId, ctx.user)).match(
+				(_) => null,
+				(err) => {
+					switch (err) {
+						case "currentUserIsNotAdmin":
+							throw new TRPCError({
+								code: "FORBIDDEN",
+								message: "You are not admin",
+							});
+						case "binDoesNotExist":
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message: "The bin doesn't exist",
+							});
+						default:
+							return err satisfies never;
+					}
+				},
+			),
+		),
+	listActivatedForOrganization: authenticatedProcedure
+		.input(
+			z.object({
+				organizationId: z.number(),
+				page: z.number().default(0),
+				pageSize: z.number().default(50),
+			}),
+		)
+		.query(async ({ input, ctx }) =>
+			(await listActivatedBinsForOrganization(input, ctx.user)).match(
+				(result) => result,
+				(err) => {
+					switch (err) {
+						case "currentUserIsNotAdmin":
+							throw new TRPCError({
+								code: "FORBIDDEN",
+								message: "You are not admin",
+							});
+						case "organizationDoesNotExist":
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message: "The organization doesn't exist",
+							});
+						default:
+							return err satisfies never;
+					}
+				},
+			),
+		),
 });

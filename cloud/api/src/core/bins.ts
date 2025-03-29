@@ -119,3 +119,57 @@ export const activateBin = async (
 		return ok(createdBin);
 	});
 };
+
+export const deactivateBin = async (
+	activatedBinId: number,
+	currentUser: User,
+) =>
+	prismaClient.$transaction(async (tx) => {
+		const activatedBin = await tx.activatedBin.findUnique({
+			where: { id: activatedBinId },
+			include: {
+				organization: {
+					include: {
+						members: { where: { userId: currentUser.id, role: "ADMIN" } },
+					},
+				},
+			},
+		});
+		if (!activatedBin) return err("binDoesNotExist");
+		if (activatedBin.organization.members.length === 0)
+			return err("currentUserIsNotAdmin");
+
+		await tx.activatedBin.delete({ where: { id: activatedBin.id } });
+		return ok();
+	});
+
+export type ListActivatedBinsForOrganizationParams = {
+	organizationId: number;
+	page: number;
+	pageSize: number;
+};
+export const listActivatedBinsForOrganization = async (
+	{ organizationId, page, pageSize }: ListActivatedBinsForOrganizationParams,
+	currentUser: User,
+) =>
+	prismaClient.$transaction(async (tx) => {
+		const organization = await tx.organization.findUnique({
+			where: { id: organizationId },
+			include: {
+				members: { where: { userId: currentUser.id, role: "ADMIN" } },
+			},
+		});
+		if (!organization) return err("organizationDoesNotExist");
+		if (organization.members.length === 0) return err("currentUserIsNotAdmin");
+
+		const [bins, totalCount] = await Promise.all([
+			tx.activatedBin.findMany({
+				where: { organizationId },
+				take: pageSize,
+				skip: pageSize * page,
+				orderBy: { activatedAt: "asc" },
+			}),
+			tx.activatedBin.count({ where: { organizationId } }),
+		]);
+		return ok({ bins, totalCount });
+	});

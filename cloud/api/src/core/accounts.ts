@@ -45,7 +45,7 @@ export const makeUserSuperAdmin = (email: string, currentUser: User) => {
 		const user = await tx.user.findUnique({ where: { email } });
 		if (!user) return err("userDoesNotExist");
 
-		const updatedUser = await prismaClient.user.update({
+		const updatedUser = await tx.user.update({
 			where: { id: user.id },
 			data: { isSuperAdmin: true },
 		});
