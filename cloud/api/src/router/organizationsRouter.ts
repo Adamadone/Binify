@@ -40,6 +40,29 @@ export const organizationsRouter = router({
 				},
 			),
 		),
+	delete: authenticatedProcedure
+		.input(z.object({ organizationId: z.number() }))
+		.mutation(async ({ input, ctx }) =>
+			(await deleteOrganization(input.organizationId, ctx.user)).match(
+				(_) => null,
+				(err) => {
+					switch (err) {
+						case "currentUserIsNotAdmin":
+							throw new TRPCError({
+								code: "FORBIDDEN",
+								message: "You are not admin in this organization",
+							});
+						case "organizationDoesNotExist":
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message: "The organization doesn't exist",
+							});
+						default:
+							return err satisfies never;
+					}
+				},
+			),
+		),
 	addMember: authenticatedProcedure
 		.input(
 			z.object({
@@ -120,10 +143,11 @@ export const organizationsRouter = router({
 				(_) => null,
 				(err) => {
 					switch (err) {
-						case "currentUserIsNotAdmin":
+						case "currentUserIsNotAdminAndIsNotSameUser":
 							throw new TRPCError({
 								code: "FORBIDDEN",
-								message: "You are not admin in this organization",
+								message:
+									"You are not admin in this organization and you are not the same user",
 							});
 						case "organizationDoesNotExist":
 							throw new TRPCError({
@@ -146,29 +170,6 @@ export const organizationsRouter = router({
 				},
 			);
 		}),
-	delete: authenticatedProcedure
-		.input(z.object({ organizationId: z.number() }))
-		.mutation(async ({ input, ctx }) =>
-			(await deleteOrganization(input.organizationId, ctx.user)).match(
-				(_) => null,
-				(err) => {
-					switch (err) {
-						case "currentUserIsNotAdmin":
-							throw new TRPCError({
-								code: "FORBIDDEN",
-								message: "You are not admin in this organization",
-							});
-						case "organizationDoesNotExist":
-							throw new TRPCError({
-								code: "BAD_REQUEST",
-								message: "The organization doesn't exist",
-							});
-						default:
-							return err satisfies never;
-					}
-				},
-			),
-		),
 	listForCurrentUser: authenticatedProcedure.query(({ ctx }) =>
 		listOrganizationsForCurrentUser(ctx.user),
 	),

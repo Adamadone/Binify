@@ -47,6 +47,28 @@ export const updateOrganization = (
 		return ok(updatedOrganization);
 	});
 
+export const deleteOrganization = (organizationId: number, currentUser: User) =>
+	prismaClient.$transaction(async (tx) => {
+		const organization = await tx.organization.findUnique({
+			where: { id: organizationId },
+		});
+		if (!organization) return err("organizationDoesNotExist");
+
+		const currentMember = await tx.member.findUnique({
+			where: {
+				userId_organizationId: {
+					organizationId: organization.id,
+					userId: currentUser.id,
+				},
+			},
+		});
+		if (!currentMember || currentMember.role !== "ADMIN")
+			return err("currentUserIsNotAdmin");
+
+		await tx.organization.delete({ where: { id: organizationId } });
+		return ok();
+	});
+
 export type AddMemberToOrganizationParams = {
 	userId: number;
 	organizationId: number;
@@ -144,8 +166,10 @@ export const removeMemberFromOrganization = (
 				},
 			},
 		});
-		if (!currentMember || currentMember.role !== "ADMIN")
-			return err("currentUserIsNotAdmin");
+		const isAdmin = currentMember && currentMember.role === "ADMIN";
+		const isSameUser = userId === currentUser.id;
+		if (!isAdmin && !isSameUser)
+			return err("currentUserIsNotAdminAndIsNotSameUser");
 
 		const member = await tx.member.findUnique({
 			where: { userId_organizationId: { organizationId, userId } },
@@ -159,28 +183,6 @@ export const removeMemberFromOrganization = (
 		await tx.member.delete({
 			where: { userId_organizationId: { userId, organizationId } },
 		});
-		return ok();
-	});
-
-export const deleteOrganization = (organizationId: number, currentUser: User) =>
-	prismaClient.$transaction(async (tx) => {
-		const organization = await tx.organization.findUnique({
-			where: { id: organizationId },
-		});
-		if (!organization) return err("organizationDoesNotExist");
-
-		const currentMember = await tx.member.findUnique({
-			where: {
-				userId_organizationId: {
-					organizationId: organization.id,
-					userId: currentUser.id,
-				},
-			},
-		});
-		if (!currentMember || currentMember.role !== "ADMIN")
-			return err("currentUserIsNotAdmin");
-
-		await tx.organization.delete({ where: { id: organizationId } });
 		return ok();
 	});
 
