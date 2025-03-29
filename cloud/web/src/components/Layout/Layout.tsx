@@ -36,7 +36,7 @@ export const Layout = ({ children, title }: LayoutProps) => {
 	const isLoggedIn = !!storage.data.token && isTokenValid(storage.data.token);
 	const userMeQuery = useUserMeQuery();
 
-	const renderUser: RenderContent<TrpcOutputs["userMe"]> = (user) => {
+	const renderUser: RenderContent<TrpcOutputs["accounts"]["me"]> = (user) => {
 		return <NavUser user={user} />;
 	};
 

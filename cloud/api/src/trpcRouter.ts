@@ -1,15 +1,13 @@
 import type { inferRouterOutputs } from "@trpc/server";
-import { authenticatedProcedure } from "./auth/trpcAuth";
 import { router } from "./libs/trpc";
+import { accountsRouter } from "./router/accountsRouter";
 import { binsRouter } from "./router/binsRouter";
 import { organizationsRouter } from "./router/organizationsRouter";
 
 export const trpcRouter = router({
-	userMe: authenticatedProcedure.query(async ({ ctx }) => {
-		return ctx.user;
-	}),
-	bins: binsRouter,
+	accounts: accountsRouter,
 	organizations: organizationsRouter,
+	bins: binsRouter,
 });
 
 export type TrpcRouter = typeof trpcRouter;

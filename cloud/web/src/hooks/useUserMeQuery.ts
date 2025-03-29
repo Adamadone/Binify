@@ -8,7 +8,7 @@ export const useUserMeQuery = () => {
 	const token = storage.data.token;
 
 	const userMeQuery = useQuery(
-		trpc.userMe.queryOptions(undefined, {
+		trpc.accounts.me.queryOptions(undefined, {
 			enabled: !!token && isTokenValid(token),
 		}),
 	);
