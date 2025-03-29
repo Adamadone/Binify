@@ -1,6 +1,5 @@
 import { useUserMeQuery } from "@/hooks/useUserMeQuery";
 import { homeRoute } from "@/pages/HomePage/route";
-import { devicesRoute } from "@/pages/authenticated/DevicesPage/route";
 import { globalBinsRoute } from "@/pages/authenticated/GlobalBinsPage/route";
 import type { TrpcOutputs } from "@bin/api";
 import {
@@ -23,7 +22,7 @@ type NavItem = {
 	to: ToPathOption<RegisteredRouter>;
 	title: string;
 	icon: ReactElement;
-	visible?: (user?: TrpcOutputs["userMe"]) => boolean;
+	visible?: (user?: TrpcOutputs["accounts"]["me"]) => boolean;
 };
 
 type NavSection = {
@@ -39,11 +38,6 @@ const NAV_SECTIONS: NavSection[] = [
 				title: "Home",
 				icon: <HomeIcon />,
 			},
-			{
-				to: devicesRoute.fullPath,
-				title: "Devices",
-				icon: <MicrochipIcon />,
-			},
 		],
 	},
 	{
@@ -51,7 +45,7 @@ const NAV_SECTIONS: NavSection[] = [
 		items: [
 			{
 				to: globalBinsRoute.fullPath,
-				title: "Global devices",
+				title: "Global bins",
 				icon: <MicrochipIcon />,
 				visible: (user) => !!user?.isSuperAdmin,
 			},

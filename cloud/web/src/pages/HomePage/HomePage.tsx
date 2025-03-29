@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { trpc } from "../../libs/trpc";
 
 export const HomePage = () => {
-	const binListQuery = useQuery(trpc.bins.listBins.queryOptions({}));
+	const binListQuery = useQuery(trpc.bins.list.queryOptions({}));
 
 	return (
 		<Layout title="Home">
