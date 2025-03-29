@@ -47,6 +47,11 @@ export const accountsRouter = router({
 								code: "FORBIDDEN",
 								message: "You are not super admin",
 							});
+						case "cannotRemoveLastSuperAdmin":
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message: "Cannot remove last super admin",
+							});
 						default:
 							return err satisfies never;
 					}

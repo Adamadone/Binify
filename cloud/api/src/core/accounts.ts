@@ -59,11 +59,18 @@ export const demoteUserFromSuperAdmin = async (
 ) => {
 	if (!currentUser.isSuperAdmin) return err("currentUserIsNotSuperAdmin");
 
-	const updatedUser = await prismaClient.user.update({
-		where: { id: userId },
-		data: { isSuperAdmin: false },
+	return prismaClient.$transaction(async (tx) => {
+		const superAdminCount = await tx.user.count({
+			where: { isSuperAdmin: true },
+		});
+		if (superAdminCount === 1) return err("cannotRemoveLastSuperAdmin");
+
+		const updatedUser = await tx.user.update({
+			where: { id: userId },
+			data: { isSuperAdmin: false },
+		});
+		return ok(updatedUser);
 	});
-	return ok(updatedUser);
 };
 
 export const listSuperAdmins = async (currentUser: User) => {
