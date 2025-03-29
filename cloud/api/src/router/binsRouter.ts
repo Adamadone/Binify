@@ -76,7 +76,7 @@ export const binsRouter = router({
 								code: "NOT_FOUND",
 								message: "Organization not found",
 							});
-						case "userIsNotAdmin":
+						case "currentUserIsNotAdmin":
 							throw new TRPCError({
 								code: "FORBIDDEN",
 								message: "You are not organization admin",

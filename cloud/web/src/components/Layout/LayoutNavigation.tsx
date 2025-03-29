@@ -1,5 +1,6 @@
 import { useUserMeQuery } from "@/hooks/useUserMeQuery";
 import { homeRoute } from "@/pages/HomePage/route";
+import { devicesRoute } from "@/pages/authenticated/DevicesPage/route";
 import { globalBinsRoute } from "@/pages/authenticated/GlobalBinsPage/route";
 import type { TrpcOutputs } from "@bin/api";
 import {
@@ -34,12 +35,12 @@ const NAV_SECTIONS: NavSection[] = [
 	{
 		items: [
 			{
-				to: homeRoute.id,
+				to: homeRoute.fullPath,
 				title: "Home",
 				icon: <HomeIcon />,
 			},
 			{
-				to: homeRoute.id,
+				to: devicesRoute.fullPath,
 				title: "Devices",
 				icon: <MicrochipIcon />,
 			},

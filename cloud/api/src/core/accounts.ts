@@ -1,7 +1,7 @@
 import { prismaClient } from "../libs/prisma";
 
 export const findUser = (id: number) =>
-	prismaClient.user.findFirst({ where: { id } });
+	prismaClient.user.findUnique({ where: { id } });
 
 type UpsertMicrosoftUserParams = {
 	id: string;

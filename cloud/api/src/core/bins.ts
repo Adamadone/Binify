@@ -84,7 +84,7 @@ export const activateBin = async (
 	{ activationCode, binName, organizationId }: ActivateBinParams,
 	currentUser: User,
 ) => {
-	const organization = await prismaClient.organization.findFirst({
+	const organization = await prismaClient.organization.findUnique({
 		where: {
 			id: organizationId,
 		},
@@ -98,10 +98,10 @@ export const activateBin = async (
 		},
 	});
 	if (!organization) return err("organizationNotFound");
-	if (organization.members.length === 0) return err("userIsNotAdmin");
+	if (organization.members.length === 0) return err("currentUserIsNotAdmin");
 
 	return prismaClient.$transaction(async (tx) => {
-		const bin = await tx.bin.findFirst({
+		const bin = await tx.bin.findUnique({
 			where: { activationCode: activationCode },
 			include: { activatedBin: true },
 		});
