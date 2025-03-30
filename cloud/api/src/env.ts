@@ -8,6 +8,7 @@ const envSchema = z.object({
 	JWT_EXPIRES_IN_SECONDS: z.coerce.number(),
 	MICROSOFT_CLIENT_ID: z.string(),
 	MICROSOFT_CLIENT_SECRET: z.string(),
+	AUTH_TOKEN_RETRIEVAL_TIMEOUT_SECONDS: z.coerce.number(),
 	WEB_LOGIN_URL: z.string(),
 	WEB_TOKEN_CALLBACK_URL: z.string(),
 });

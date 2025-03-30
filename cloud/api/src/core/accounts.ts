@@ -1,5 +1,6 @@
 import type { User } from "@prisma/client";
 import { err, ok } from "neverthrow";
+import { env } from "../env";
 import { prismaClient } from "../libs/prisma";
 
 export const findUser = (id: number) =>
@@ -36,6 +37,44 @@ export const upsertMicrosoftLogin = ({
 				},
 			},
 		});
+	});
+
+const getValidLoginCodeDateThreshold = () => {
+	const threshold = new Date();
+	threshold.setSeconds(
+		threshold.getSeconds() - env.AUTH_TOKEN_RETRIEVAL_TIMEOUT_SECONDS,
+	);
+	return threshold;
+};
+
+export const createLoginCode = (userId: number) => {
+	return prismaClient.$transaction(async (tx) => {
+		// Delete for current user or old
+		await tx.loginCode.deleteMany({
+			where: {
+				OR: [
+					{ userId: userId },
+					{ createdAt: { lt: getValidLoginCodeDateThreshold() } },
+				],
+			},
+		});
+		return tx.loginCode.create({
+			data: { createdAt: new Date(), userId: userId },
+		});
+	});
+};
+
+/** One time operation */
+export const retrieveLoginCode = (code: string) =>
+	prismaClient.$transaction(async (tx) => {
+		const loginCode = await tx.loginCode.findUnique({ where: { code } });
+		if (!loginCode) return err("codeNotFound");
+
+		if (loginCode.createdAt < getValidLoginCodeDateThreshold())
+			return err("codeNotFound");
+
+		await tx.loginCode.deleteMany({ where: { code } });
+		return ok(loginCode);
 	});
 
 export const makeUserSuperAdmin = (email: string, currentUser: User) => {

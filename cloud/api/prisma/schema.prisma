@@ -64,10 +64,19 @@ model User {
 
   microsoftLogin MicrosoftLogin?
   member         Member[]
+  loginCode      LoginCode?
 }
 
 model MicrosoftLogin {
   id String @id
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model LoginCode {
+  code      String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime
 
   userId Int  @unique
   user   User @relation(fields: [userId], references: [id])

@@ -10,6 +10,6 @@ export const tokenRoute = createRoute({
 		"TokenCallbackPage",
 	),
 	validateSearch: z.object({
-		token: z.string(),
+		code: z.string(),
 	}).parse,
 });

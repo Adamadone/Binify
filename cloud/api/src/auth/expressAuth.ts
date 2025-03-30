@@ -3,10 +3,9 @@ import passport from "passport";
 import { Strategy as MicrosoftStrategy } from "passport-microsoft";
 import type OAuth2Strategy from "passport-oauth2";
 import { z } from "zod";
-import { upsertMicrosoftLogin } from "../core/accounts";
+import { createLoginCode, upsertMicrosoftLogin } from "../core/accounts";
 import { env } from "../env";
 import { logger } from "../libs/pino";
-import { encodeJwt } from "./jwt";
 
 const microsoftProfileSchema = z.object({
 	id: z.string(),
@@ -58,14 +57,18 @@ export const setupAuth = () => {
 
 export const authRouter = express.Router();
 
-authRouter.get("/auth/microsoft", passport.authenticate("microsoft"));
+authRouter.get(
+	"/auth/microsoft",
+	passport.authenticate("microsoft", { prompt: "select_account" }),
+);
 authRouter.get(
 	"/auth/microsoft/callback",
 	passport.authenticate("microsoft", { session: false }),
 	async (req, res) => {
 		if (!req.user) return res.redirect(env.WEB_LOGIN_URL);
 
-		const jwt = await encodeJwt(req.user.id);
-		res.redirect(`${env.WEB_TOKEN_CALLBACK_URL}?token=${jwt}`);
+		const loginCode = await createLoginCode(req.user.id);
+
+		res.redirect(`${env.WEB_TOKEN_CALLBACK_URL}?code=${loginCode.code}`);
 	},
 );

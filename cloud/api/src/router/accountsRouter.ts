@@ -1,14 +1,34 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { encodeJwt } from "../auth/jwt";
 import { authenticatedProcedure } from "../auth/trpcAuth";
 import {
 	demoteUserFromSuperAdmin,
 	listSuperAdmins,
 	makeUserSuperAdmin,
+	retrieveLoginCode,
 } from "../core/accounts";
-import { router } from "../libs/trpc";
+import { procedure, router } from "../libs/trpc";
 
 export const accountsRouter = router({
+	retrieveToken: procedure
+		.input(z.object({ code: z.string() }))
+		.mutation(async ({ input }) =>
+			(await retrieveLoginCode(input.code)).match(
+				async (loginCode) => ({ token: await encodeJwt(loginCode.userId) }),
+				(err) => {
+					switch (err) {
+						case "codeNotFound":
+							throw new TRPCError({
+								code: "NOT_FOUND",
+								message: "The code wasn't found",
+							});
+						default:
+							return err satisfies never;
+					}
+				},
+			),
+		),
 	me: authenticatedProcedure.query(async ({ ctx }) => {
 		return ctx.user;
 	}),

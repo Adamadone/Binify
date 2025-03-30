@@ -8,13 +8,15 @@ const jwtSchema = z.object({
 });
 
 export const encodeJwt = (userId: number) =>
-	new Promise((resolve, reject) =>
+	new Promise<string>((resolve, reject) =>
 		jwt.sign(
 			{ userId: userId },
 			env.JWT_SECRET,
 			{ expiresIn: env.JWT_EXPIRES_IN_SECONDS },
 			(err, token) => {
 				if (err) return reject(err);
+				if (!token) return reject();
+
 				resolve(token);
 			},
 		),

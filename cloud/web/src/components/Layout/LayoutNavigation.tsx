@@ -26,12 +26,21 @@ type NavItem = {
 };
 
 type NavSection = {
-	title?: string;
 	items: NavItem[];
-};
+} & (
+	| {
+			id: string;
+			title?: undefined;
+	  }
+	| {
+			id?: undefined;
+			title: string;
+	  }
+);
 
 const NAV_SECTIONS: NavSection[] = [
 	{
+		id: "root",
 		items: [
 			{
 				to: homeRoute.fullPath,
@@ -74,7 +83,7 @@ export const LayoutNavigation = () => {
 		));
 
 		return (
-			<SidebarGroup key={section.title}>
+			<SidebarGroup key={section.id || section.title}>
 				{section.title && (
 					<SidebarGroupLabel>{section.title}</SidebarGroupLabel>
 				)}
