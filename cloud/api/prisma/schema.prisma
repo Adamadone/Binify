@@ -30,6 +30,20 @@ model ActivatedBin {
 
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])
+
+  measurements Measurement[]
+}
+
+// Hypertable by_range('measuredAt')
+model Measurement {
+  measuredAt          DateTime @db.Timestamptz(3)
+  distanceCentimeters Int
+  airQualityPpm       Int
+
+  activatedBinId Int
+  activatedBin   ActivatedBin @relation(fields: [activatedBinId], references: [id], onDelete: Cascade)
+
+  @@id([measuredAt, activatedBinId])
 }
 
 model Organization {

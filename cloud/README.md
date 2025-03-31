@@ -10,12 +10,6 @@ To run `api` and `web` apps:
 2. Run `npm dev` in `api` and `web` directories
 3. Go to `http://localhost:3000`
 
-### DB
-
-To create DB migration run `npx prisma migrate dev --name <name>` in `api` directory.
-And to run the migrations run `npx prisma migrate dev`.
-
-You can view the DB using `npx prisma studio` in `api` directory.
 
 ## Communication
 
@@ -33,7 +27,26 @@ To auto fix issues run `npm run lint:fix` in one of the apps.
 All dynamic configuration (like api url, oauth keys) are stored in environment variables so that the app can be easily deployed.
 Values for local development are stored in `.env` files.
 
-## FE components
+## BE
+
+### DB
+
+To create DB migration run `npx prisma migrate dev --name <name>` in `api` directory.
+And to run the migrations run `npx prisma migrate dev`.
+
+You can view the DB using `npx prisma studio` in `api` directory.
+
+
+### Dev utils
+
+Dev utils are scripts to help you with simulating data. They are located at `cloud/src/devUtils/`.
+
+To run them, build the `api` project `npm run  dev` or `npm run build` and run `node dist/devUtils/<scriptName>.js`
+
+
+## FE
+
+### components
 
 FE components are bootstraped from [shadcn](https://ui.shadcn.com/) and for styling we use [Tailwind CSS](https://tailwindcss.com/).
 To add a component run `npx shadcn add` in **`web`** directory.

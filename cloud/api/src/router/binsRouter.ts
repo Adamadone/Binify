@@ -2,13 +2,16 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { authenticatedProcedure } from "../auth/trpcAuth";
 import {
+	type ImportBinBatchMeasurementsParams,
 	activateBin,
 	createBin,
 	deactivateBin,
+	getBinStatistics,
+	importBinBatchMeasurements,
 	listActivatedBinsForOrganization,
 	listBinsWithActivatedBinsAndOrganizations,
 } from "../core/bins";
-import { router } from "../libs/trpc";
+import { procedure, router } from "../libs/trpc";
 
 export const binsRouter = router({
 	create: authenticatedProcedure.mutation(async ({ ctx }) =>
@@ -131,15 +134,84 @@ export const binsRouter = router({
 				(result) => result,
 				(err) => {
 					switch (err) {
-						case "currentUserIsNotAdmin":
+						case "currentUserIsNotMember":
 							throw new TRPCError({
 								code: "FORBIDDEN",
-								message: "You are not admin",
+								message: "You are not member",
 							});
 						case "organizationDoesNotExist":
 							throw new TRPCError({
 								code: "BAD_REQUEST",
 								message: "The organization doesn't exist",
+							});
+						default:
+							return err satisfies never;
+					}
+				},
+			),
+		),
+	importBatchMeasurements: procedure
+		.input(
+			z.object({
+				devices: z.array(
+					z.object({
+						deviceId: z.string(),
+						measurements: z.array(
+							z.object({
+								measuredAt: z.string().datetime(),
+								distanceCentimeters: z.number().positive(),
+								airQualityPpm: z.number().positive().max(1_000_000),
+							}),
+						),
+					}),
+				),
+			}),
+		)
+
+		.mutation(async ({ input }) => {
+			const devices: ImportBinBatchMeasurementsParams["devices"] =
+				input.devices.map((device) => ({
+					...device,
+					measurements: device.measurements.map((measurement) => ({
+						...measurement,
+						measuredAt: new Date(measurement.measuredAt),
+					})),
+				}));
+			importBinBatchMeasurements({ devices });
+		}),
+	statistics: authenticatedProcedure
+		.input(
+			z.object({
+				activatedBinId: z.number(),
+				from: z.string().datetime(),
+				to: z.string().datetime(),
+				groupByMinutes: z.number(),
+			}),
+		)
+		.query(async ({ input, ctx }) =>
+			(
+				await getBinStatistics(
+					{
+						activatedBindId: input.activatedBinId,
+						from: new Date(input.from),
+						to: new Date(input.to),
+						groupByMinutes: input.groupByMinutes,
+					},
+					ctx.user,
+				)
+			).match(
+				(statistics) => statistics,
+				(err) => {
+					switch (err) {
+						case "currentUserIsNotMember":
+							throw new TRPCError({
+								code: "FORBIDDEN",
+								message: "You are not a member",
+							});
+						case "tooManyGroups":
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message: "This request would result in too many groups/points",
 							});
 						default:
 							return err satisfies never;

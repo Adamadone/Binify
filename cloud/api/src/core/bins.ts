@@ -1,10 +1,11 @@
-import { type Bin, Prisma, type User } from "@prisma/client";
+import { type Bin, type Measurement, Prisma, type User } from "@prisma/client";
 import { err, ok, okAsync } from "neverthrow";
 import { v4 as uuid } from "uuid";
 import { logger } from "../libs/pino";
 import { prismaClient } from "../libs/prisma";
 
 const MAX_CODE_GENERATION_RUNS = 100;
+const MAX_STATISTICS_INTERVALS = 100;
 
 export const createBin = async (currentUser: User) => {
 	if (!currentUser.isSuperAdmin) return err("userIsNotSuperAdmin");
@@ -156,11 +157,11 @@ export const listActivatedBinsForOrganization = async (
 		const organization = await tx.organization.findUnique({
 			where: { id: organizationId },
 			include: {
-				members: { where: { userId: currentUser.id, role: "ADMIN" } },
+				members: { where: { userId: currentUser.id } },
 			},
 		});
 		if (!organization) return err("organizationDoesNotExist");
-		if (organization.members.length === 0) return err("currentUserIsNotAdmin");
+		if (organization.members.length === 0) return err("currentUserIsNotMember");
 
 		const [bins, totalCount] = await Promise.all([
 			tx.activatedBin.findMany({
@@ -173,3 +174,101 @@ export const listActivatedBinsForOrganization = async (
 		]);
 		return ok({ bins, totalCount });
 	});
+
+export type ImportBinBatchMeasurementsParams = {
+	devices: {
+		deviceId: string;
+		measurements: {
+			measuredAt: Date;
+			distanceCentimeters: number;
+			airQualityPpm: number;
+		}[];
+	}[];
+};
+export const importBinBatchMeasurements = ({
+	devices,
+}: ImportBinBatchMeasurementsParams) => {
+	const promises = devices.map(async (device) => {
+		prismaClient.$transaction(async (tx) => {
+			const activatedBin = await tx.activatedBin.findFirst({
+				where: { bin: { deviceId: device.deviceId } },
+			});
+			if (!activatedBin) {
+				logger.warn(
+					{ deviceId: device.deviceId },
+					"Device wasn't activated or doesn't exist. Skipping.",
+				);
+				return;
+			}
+
+			const data = device.measurements.map<Measurement>((measurement) => ({
+				...measurement,
+				activatedBinId: activatedBin.id,
+			}));
+			await tx.measurement.createMany({ data, skipDuplicates: true });
+		});
+	});
+
+	return Promise.all(promises);
+};
+
+export type GetBinStatisticsParams = {
+	from: Date;
+	to: Date;
+	groupByMinutes: number;
+	activatedBindId: number;
+};
+export type BinStatistic = {
+	intervalStart: Date;
+	maxDistanceCentimeters: number;
+	minDistanceCentimeters: number;
+	avgDistanceCentimeters: number;
+	maxAirQualityPpm: number;
+	minAirQualityPpm: number;
+	avgAirQualityPpm: number;
+};
+type BinStatisticRaw = {
+	intervalStart: string;
+	maxDistanceCentimeters: number;
+	minDistanceCentimeters: number;
+	avgDistanceCentimeters: number;
+	maxAirQualityPpm: number;
+	minAirQualityPpm: number;
+	avgAirQualityPpm: number;
+};
+export const getBinStatistics = async (
+	{ from, to, groupByMinutes, activatedBindId }: GetBinStatisticsParams,
+	currentUser: User,
+) => {
+	const intervalMinutes = (to.getTime() - from.getTime()) / (1_000 * 60);
+	const numberOfGroups = Math.ceil(intervalMinutes / groupByMinutes);
+	logger.info({ intervalMinutes, numberOfGroups }, "getBinStatics called");
+	if (numberOfGroups > MAX_STATISTICS_INTERVALS) return err("tooManyGroups");
+
+	const currentMember = await prismaClient.member.findFirst({
+		where: {
+			userId: currentUser.id,
+			organization: { bins: { some: { id: activatedBindId } } },
+		},
+	});
+	if (!currentMember) return err("currentUserIsNotMember");
+
+	const statisticsRaw = await prismaClient.$queryRaw<BinStatisticRaw[]>`
+				select time_bucket((${groupByMinutes} || ' minutes')::interval, "measuredAt", ${from}) as "intervalStart",
+		    max("distanceCentimeters") as "maxDistanceCentimeters",
+		    min("distanceCentimeters") as "minDistanceCentimeters",
+		    round(avg("distanceCentimeters"))::integer as "avgDistanceCentimeters",
+		    max("airQualityPpm") as "maxAirQualityPpm",
+		    min("airQualityPpm") as "minAirQualityPpm",
+		    round(avg("airQualityPpm"))::integer as "avgAirQualityPpm"
+		  from "Measurement"
+		  where "activatedBinId" = ${activatedBindId} and "measuredAt" >= ${from} and "measuredAt" <= ${to}
+		  GROUP BY "intervalStart"
+		  ORDER BY "intervalStart" DESC;
+	`;
+	const statistics = statisticsRaw.map<BinStatistic>((entry) => ({
+		...entry,
+		intervalStart: new Date(entry.intervalStart),
+	}));
+	return ok(statistics);
+};

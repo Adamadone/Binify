@@ -1,14 +1,16 @@
+name: binify-cloud
+
 volumes:
   db:
 
 services:
   postgres:
-    image: postgres:17.4
+    image: timescale/timescaledb-ha:pg17
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: bin
     volumes:
-      - db:/var/lib/postgresql/data
+      - db:/home/postgres/pgdata/data
     ports:
       - "5432:5432"
