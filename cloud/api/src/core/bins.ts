@@ -3,6 +3,7 @@ import { err, ok, okAsync } from "neverthrow";
 import { v4 as uuid } from "uuid";
 import { logger } from "../libs/pino";
 import { prismaClient } from "../libs/prisma";
+import { calculcatePercentage } from "../utils/calculatePercentage";
 
 const MAX_CODE_GENERATION_RUNS = 100;
 const MAX_STATISTICS_INTERVALS = 100;
@@ -218,20 +219,28 @@ export type GetBinStatisticsParams = {
 	groupByMinutes: number;
 	activatedBindId: number;
 };
-export type BinStatistic = {
+export type BinStatisticInterval = {
 	intervalStart: Date;
 	maxDistanceCentimeters: number;
+	maxFulnnessPercentage: number;
 	minDistanceCentimeters: number;
+	minFulnnessPercentage: number;
 	avgDistanceCentimeters: number;
+	avgFulnessPercentage: number;
 	maxAirQualityPpm: number;
 	minAirQualityPpm: number;
 	avgAirQualityPpm: number;
 };
-type BinStatisticRaw = {
+export type BinStatistic = {
+	maxDistanceCentimeters: number;
+	intervals: BinStatisticInterval[];
+};
+type BinStatisticIntervalRaw = {
 	intervalStart: string;
 	maxDistanceCentimeters: number;
 	minDistanceCentimeters: number;
 	avgDistanceCentimeters: number;
+	globalMaxDistanceCentimeters: number;
 	maxAirQualityPpm: number;
 	minAirQualityPpm: number;
 	avgAirQualityPpm: number;
@@ -241,9 +250,12 @@ export const getBinStatistics = async (
 	currentUser: User,
 ) => {
 	const intervalMinutes = (to.getTime() - from.getTime()) / (1_000 * 60);
-	const numberOfGroups = Math.ceil(intervalMinutes / groupByMinutes);
-	logger.info({ intervalMinutes, numberOfGroups }, "getBinStatics called");
-	if (numberOfGroups > MAX_STATISTICS_INTERVALS) return err("tooManyGroups");
+	const numberOfIntervals = Math.ceil(intervalMinutes / groupByMinutes);
+	logger.info(
+		{ intervalMinutes, numberOfGroups: numberOfIntervals },
+		"getBinStatics called",
+	);
+	if (numberOfIntervals > MAX_STATISTICS_INTERVALS) return err("tooManyGroups");
 
 	const currentMember = await prismaClient.member.findFirst({
 		where: {
@@ -253,22 +265,45 @@ export const getBinStatistics = async (
 	});
 	if (!currentMember) return err("currentUserIsNotMember");
 
-	const statisticsRaw = await prismaClient.$queryRaw<BinStatisticRaw[]>`
+	const statisticsRaw = await prismaClient.$queryRaw<BinStatisticIntervalRaw[]>`
 				select time_bucket((${groupByMinutes} || ' minutes')::interval, "measuredAt", ${from}) as "intervalStart",
 		    max("distanceCentimeters") as "maxDistanceCentimeters",
 		    min("distanceCentimeters") as "minDistanceCentimeters",
 		    round(avg("distanceCentimeters"))::integer as "avgDistanceCentimeters",
+		    (select max("distanceCentimeters") from "Measurement" where "activatedBinId" = ${activatedBindId} ) as "globalMaxDistanceCentimeters",
 		    max("airQualityPpm") as "maxAirQualityPpm",
 		    min("airQualityPpm") as "minAirQualityPpm",
 		    round(avg("airQualityPpm"))::integer as "avgAirQualityPpm"
 		  from "Measurement"
 		  where "activatedBinId" = ${activatedBindId} and "measuredAt" >= ${from} and "measuredAt" <= ${to}
-		  GROUP BY "intervalStart"
-		  ORDER BY "intervalStart" DESC;
+		  group by "intervalStart"
+		  order by "intervalStart" desc;
 	`;
-	const statistics = statisticsRaw.map<BinStatistic>((entry) => ({
-		...entry,
+	const globalMaxDistanceCentimeters =
+		statisticsRaw[0]?.globalMaxDistanceCentimeters ?? 0;
+	const statistics = statisticsRaw.map<BinStatisticInterval>((entry) => ({
 		intervalStart: new Date(entry.intervalStart),
+		maxDistanceCentimeters: entry.maxDistanceCentimeters,
+		maxFulnnessPercentage: calculcatePercentage(
+			entry.maxDistanceCentimeters,
+			globalMaxDistanceCentimeters,
+		),
+		minDistanceCentimeters: entry.minDistanceCentimeters,
+		minFulnnessPercentage: calculcatePercentage(
+			entry.minDistanceCentimeters,
+			globalMaxDistanceCentimeters,
+		),
+		avgDistanceCentimeters: entry.avgDistanceCentimeters,
+		avgFulnessPercentage: calculcatePercentage(
+			entry.avgDistanceCentimeters,
+			globalMaxDistanceCentimeters,
+		),
+		maxAirQualityPpm: entry.maxAirQualityPpm,
+		minAirQualityPpm: entry.minAirQualityPpm,
+		avgAirQualityPpm: entry.avgAirQualityPpm,
 	}));
-	return ok(statistics);
+	return ok<BinStatistic>({
+		maxDistanceCentimeters: globalMaxDistanceCentimeters,
+		intervals: statistics,
+	});
 };
