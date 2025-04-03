@@ -3,7 +3,7 @@
 	"private": true,
 	"main": "src/index",
 	"scripts": {
-		"dev": "nodemon --watch src --watch .env --watch prisma -e ts,prisma --exec 'npm run build && dotenvx run -- npm run start:dev'",
+		"dev": "nodemon --watch src --watch .env --watch prisma -e ts,prisma --exec \"npm run build && dotenvx run -- npm run start:dev\"",
 		"build": "npx prisma generate && tsc",
 		"start": "node dist/main.js",
 		"start:dev": "node dist/main.js | pino-pretty",
