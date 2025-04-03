@@ -7,7 +7,7 @@ The easiest way to get started is to install Docker and then run `docker compose
 
 To run `api` and `web` apps:
 1. Run `npm install` - it's enough to run it only once, when setting up this project
-2. Run `npm dev` in `api` and `web` directories
+2. Run `npm run dev` in `api` and `web` directories
 3. Go to `http://localhost:3000`
 
 
@@ -32,7 +32,7 @@ Values for local development are stored in `.env` files.
 ### DB
 
 To create DB migration run `npx prisma migrate dev --name <name>` in `api` directory.
-And to run the migrations run `npx prisma migrate dev`.
+And to run the migrations run `npx prisma migrate deploy`.
 
 You can view the DB using `npx prisma studio` in `api` directory.
 
