@@ -64,25 +64,6 @@ export function OrganizationSwitcher() {
 
 	const handleSwitchOrg = (orgId: number) => {
 		storage.set("activeOrgId", orgId);
-		queryClient.invalidateQueries({
-			predicate: (query) => {
-				const queryKey = Array.isArray(query.queryKey)
-					? query.queryKey
-					: [query.queryKey];
-
-				return (
-					queryKey[0] === "organizations" ||
-					queryKey[0] === "bins" ||
-					queryKey.some(
-						(key) =>
-							typeof key === "object" &&
-							key !== null &&
-							"organizationId" in key,
-					)
-				);
-			},
-		});
-
 		enqueueSnackbar({
 			variant: "success",
 			message: "Organization switched",
