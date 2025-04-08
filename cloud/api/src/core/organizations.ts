@@ -70,12 +70,13 @@ export const deleteOrganization = (organizationId: number, currentUser: User) =>
 	});
 
 export type AddMemberToOrganizationParams = {
-	userId: number;
+	email: string;
 	organizationId: number;
 	role: Role;
 };
+
 export const addMemberToOrganization = (
-	{ userId, organizationId, role }: AddMemberToOrganizationParams,
+	{ email, organizationId, role }: AddMemberToOrganizationParams,
 	currentUser: User,
 ) =>
 	prismaClient.$transaction(async (tx) => {
@@ -95,14 +96,32 @@ export const addMemberToOrganization = (
 		if (!currentMember || currentMember.role !== "ADMIN")
 			return err("currentUserIsNotAdmin");
 
-		const member = await tx.member.findUnique({
-			where: { userId_organizationId: { organizationId, userId } },
+		const user = await tx.user.findUnique({
+			where: { email },
 		});
-		if (member) return err("userIsAlreadyMember");
+		if (!user) return err("userDoesNotExist");
+
+		const existingMember = await tx.member.findUnique({
+			where: {
+				userId_organizationId: {
+					organizationId,
+					userId: user.id,
+				},
+			},
+		});
+		if (existingMember) return err("userIsAlreadyMember");
 
 		const newMember = await tx.member.create({
-			data: { userId, organizationId, role },
+			data: {
+				organizationId,
+				userId: user.id,
+				role,
+			},
+			include: {
+				user: true,
+			},
 		});
+
 		return ok(newMember);
 	});
 
@@ -176,7 +195,12 @@ export const removeMemberFromOrganization = (
 		});
 		if (!member) return err("userIsNotMember");
 
-		const numberOfAdmins = await tx.member.count({ where: { role: "ADMIN" } });
+		const numberOfAdmins = await tx.member.count({
+			where: {
+				organizationId,
+				role: "ADMIN",
+			},
+		});
 		if (member.role === "ADMIN" && numberOfAdmins === 1)
 			return err("cannotRemoveLastAdmin");
 
@@ -205,6 +229,30 @@ export const listOrganizationsForCurrentUser = async (currentUser: User) => {
 	}));
 };
 
+export const getOrganizationById = (
+	organizationId: number,
+	currentUser: User,
+) =>
+	prismaClient.$transaction(async (tx) => {
+		const organization = await tx.organization.findUnique({
+			where: { id: organizationId },
+		});
+
+		if (!organization) return err("organizationDoesNotExist");
+
+		const currentMember = await tx.member.findUnique({
+			where: {
+				userId_organizationId: {
+					organizationId: organization.id,
+					userId: currentUser.id,
+				},
+			},
+		});
+
+		if (!currentMember) return err("userIsNotOrganizationMember");
+		return ok(organization);
+	});
+
 export const listOrganizationMembers = (
 	organizationId: number,
 	currentUser: User,
@@ -223,11 +271,15 @@ export const listOrganizationMembers = (
 				},
 			},
 		});
-		if (!currentMember || currentMember.role !== "ADMIN")
-			return err("currentUserIsNotAdmin");
+
+		if (!currentMember) return err("userIsNotOrganizationMember");
 
 		const members = await tx.member.findMany({
 			where: { organizationId: organization.id },
+			include: {
+				user: true,
+			},
 		});
+
 		return ok(members);
 	});

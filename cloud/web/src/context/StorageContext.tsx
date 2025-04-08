@@ -9,6 +9,7 @@ import { type ZodOptionalType, type ZodType, z } from "zod";
 
 const storageSchemas = {
 	token: z.string().optional(),
+	activeOrgId: z.number().optional(),
 } satisfies Record<string, ZodOptionalType<ZodType>>;
 
 export type StorageKey = keyof typeof storageSchemas;

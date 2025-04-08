@@ -6,6 +6,7 @@ import {
 	changeMemberRole,
 	createOrganization,
 	deleteOrganization,
+	getOrganizationById,
 	listOrganizationMembers,
 	listOrganizationsForCurrentUser,
 	removeMemberFromOrganization,
@@ -17,6 +18,7 @@ export const organizationsRouter = router({
 	create: authenticatedProcedure
 		.input(z.object({ name: z.string() }))
 		.mutation(({ input, ctx }) => createOrganization(input.name, ctx.user)),
+
 	update: authenticatedProcedure
 		.input(z.object({ id: z.number(), name: z.string() }))
 		.mutation(async ({ input, ctx }) =>
@@ -40,6 +42,7 @@ export const organizationsRouter = router({
 				},
 			),
 		),
+
 	delete: authenticatedProcedure
 		.input(z.object({ organizationId: z.number() }))
 		.mutation(async ({ input, ctx }) =>
@@ -63,33 +66,48 @@ export const organizationsRouter = router({
 				},
 			),
 		),
+
 	addMember: authenticatedProcedure
 		.input(
 			z.object({
-				userId: z.number(),
 				organizationId: z.number(),
+				email: z.string().email(),
 				role: z.enum(["ADMIN", "VIEWER"]),
 			}),
 		)
 		.mutation(async ({ input, ctx }) =>
-			(await addMemberToOrganization(input, ctx.user)).match(
-				(organization) => organization,
+			(
+				await addMemberToOrganization(
+					{
+						email: input.email,
+						organizationId: input.organizationId,
+						role: input.role,
+					},
+					ctx.user,
+				)
+			).match(
+				(member) => ({ member }),
 				(err) => {
 					switch (err) {
-						case "currentUserIsNotAdmin":
-							throw new TRPCError({
-								code: "FORBIDDEN",
-								message: "You are not admin in this organization",
-							});
 						case "organizationDoesNotExist":
 							throw new TRPCError({
 								code: "BAD_REQUEST",
 								message: "The organization doesn't exist",
 							});
+						case "currentUserIsNotAdmin":
+							throw new TRPCError({
+								code: "FORBIDDEN",
+								message: "You are not admin in this organization",
+							});
+						case "userDoesNotExist":
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message: "No user found with that email address",
+							});
 						case "userIsAlreadyMember":
 							throw new TRPCError({
 								code: "BAD_REQUEST",
-								message: "The user is alrady a member",
+								message: "This user is already a member of the organization",
 							});
 						default:
 							return err satisfies never;
@@ -97,6 +115,7 @@ export const organizationsRouter = router({
 				},
 			),
 		),
+
 	changeMemberRole: authenticatedProcedure
 		.input(
 			z.object({
@@ -131,6 +150,7 @@ export const organizationsRouter = router({
 				},
 			),
 		),
+
 	removeMember: authenticatedProcedure
 		.input(
 			z.object({
@@ -170,9 +190,35 @@ export const organizationsRouter = router({
 				},
 			);
 		}),
+
 	listForCurrentUser: authenticatedProcedure.query(({ ctx }) =>
 		listOrganizationsForCurrentUser(ctx.user),
 	),
+
+	getById: authenticatedProcedure
+		.input(z.object({ organizationId: z.number() }))
+		.query(async ({ input, ctx }) =>
+			(await getOrganizationById(input.organizationId, ctx.user)).match(
+				(organization) => organization,
+				(err) => {
+					switch (err) {
+						case "organizationDoesNotExist":
+							throw new TRPCError({
+								code: "BAD_REQUEST",
+								message: "The organization doesn't exist",
+							});
+						case "userIsNotOrganizationMember":
+							throw new TRPCError({
+								code: "UNAUTHORIZED",
+								message: "You are not a member of this organization",
+							});
+						default:
+							return err satisfies never;
+					}
+				},
+			),
+		),
+
 	listMembers: authenticatedProcedure
 		.input(z.object({ organizationId: z.number() }))
 		.query(async ({ input, ctx }) =>
@@ -180,15 +226,15 @@ export const organizationsRouter = router({
 				(members) => members,
 				(err) => {
 					switch (err) {
-						case "currentUserIsNotAdmin":
-							throw new TRPCError({
-								code: "FORBIDDEN",
-								message: "You are not admin in this organization",
-							});
 						case "organizationDoesNotExist":
 							throw new TRPCError({
 								code: "BAD_REQUEST",
 								message: "The organization doesn't exist",
+							});
+						case "userIsNotOrganizationMember":
+							throw new TRPCError({
+								code: "UNAUTHORIZED",
+								message: "You are not a member of this organization",
 							});
 						default:
 							return err satisfies never;

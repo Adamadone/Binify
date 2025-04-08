@@ -9,6 +9,7 @@ import { Trash2Icon } from "lucide-react";
 import type { ReactNode } from "react";
 import { DynamicContent, type RenderContent } from "../DynamicContent";
 import { NavUser } from "../NavUser";
+import { OrganizationSwitcher } from "../OrganizationSwitcher";
 import { Button } from "../button";
 import { Separator } from "../separator";
 import {
@@ -57,6 +58,7 @@ export const Layout = ({ children, title }: LayoutProps) => {
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					</SidebarMenu>
+					{isLoggedIn && <OrganizationSwitcher />}
 				</SidebarHeader>
 				<SidebarContent>
 					<LayoutNavigation />
