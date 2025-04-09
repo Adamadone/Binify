@@ -1,6 +1,4 @@
 import { useUserMeQuery } from "@/hooks/useUserMeQuery";
-import { homeRoute } from "@/pages/HomePage/route";
-import { globalBinsRoute } from "@/pages/authenticated/GlobalBinsPage/route";
 import type { TrpcOutputs } from "@bin/api";
 import {
 	Link,
@@ -19,7 +17,7 @@ import {
 } from "../sidebar";
 
 type NavItem = {
-	to: ToPathOption<RegisteredRouter>;
+	to: ToPathOption<RegisteredRouter, "/", "/">;
 	title: string;
 	icon: ReactElement;
 	visible?: (user?: TrpcOutputs["accounts"]["me"]) => boolean;
@@ -43,7 +41,7 @@ const NAV_SECTIONS: NavSection[] = [
 		id: "root",
 		items: [
 			{
-				to: homeRoute.fullPath,
+				to: "/",
 				title: "Home",
 				icon: <HomeIcon />,
 			},
@@ -53,7 +51,7 @@ const NAV_SECTIONS: NavSection[] = [
 		title: "Global administration",
 		items: [
 			{
-				to: globalBinsRoute.fullPath,
+				to: "/global-bins",
 				title: "Global bins",
 				icon: <MicrochipIcon />,
 				visible: (user) => !!user?.isSuperAdmin,
