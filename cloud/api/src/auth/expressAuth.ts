@@ -17,6 +17,7 @@ const microsoftStrategy = new MicrosoftStrategy(
 	{
 		clientID: env.MICROSOFT_CLIENT_ID,
 		clientSecret: env.MICROSOFT_CLIENT_SECRET,
+		callbackURL: env.MICROSOFT_CALLBACK_URL,
 		scope: ["user.read"],
 	},
 	async (
