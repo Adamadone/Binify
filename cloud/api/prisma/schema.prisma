@@ -47,10 +47,12 @@ model Measurement {
 }
 
 model Organization {
-  id      Int            @id @default(autoincrement())
-  name    String
-  bins    ActivatedBin[]
-  members Member[]
+  id                    Int            @id @default(autoincrement())
+  name                  String
+  bins                  ActivatedBin[]
+  members               Member[]
+  alertThresholdPercent Int?
+  AlertSource           AlertSource[]
 }
 
 enum Role {
@@ -68,6 +70,33 @@ model Member {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@id([userId, organizationId])
+}
+
+model AlertSource {
+  id            Int    @id @default(autoincrement())
+  name          String
+  repeatMinutes Int?
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  telegramAlertSource TelegramAlertSource?
+  sentAlert           SentAlert[]
+}
+
+model TelegramAlertSource {
+  alertSourceId Int         @id
+  alertSource   AlertSource @relation(fields: [alertSourceId], references: [id], onDelete: Cascade)
+
+  token String
+}
+
+model SentAlert {
+  id Int      @id @default(autoincrement())
+  at DateTime
+
+  alertSourceId Int
+  alertSource   AlertSource @relation(fields: [alertSourceId], references: [id], onDelete: Cascade)
 }
 
 model User {
