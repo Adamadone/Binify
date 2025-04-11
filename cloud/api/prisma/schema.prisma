@@ -88,7 +88,7 @@ model TelegramAlertSource {
   alertSourceId Int         @id
   alertSource   AlertSource @relation(fields: [alertSourceId], references: [id], onDelete: Cascade)
 
-  token String
+  chatId String
 }
 
 model SentAlert {
