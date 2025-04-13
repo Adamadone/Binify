@@ -26,7 +26,7 @@ export const Pagination = ({
 				Previous
 			</Button>
 			<div className="text-sm">
-				{page}/{totalPages}
+				{page + 1}/{totalPages}
 			</div>
 			<Button
 				variant={"ghost"}

@@ -3,6 +3,8 @@ import cors from "cors";
 import express from "express";
 import { authRouter, setupAuth } from "./auth/expressAuth";
 import { env } from "./env";
+import { registerFulnessAlertJob } from "./jobs/fulnessAlertJob";
+import { registerTelegramUpdatesJob } from "./jobs/telegramUpdatesJob";
 import { logger } from "./libs/pino";
 import { trpcRouter } from "./trpcRouter";
 
@@ -22,5 +24,9 @@ app.use(
 );
 app.use(authRouter);
 
-app.listen(env.PORT);
-logger.info(`App listening on http://localhost:${env.PORT}`);
+app.listen(env.PORT, async () => {
+	logger.info(`App listening on http://localhost:${env.PORT}`);
+
+	registerTelegramUpdatesJob();
+	registerFulnessAlertJob();
+});

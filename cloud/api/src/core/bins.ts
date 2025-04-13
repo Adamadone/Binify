@@ -266,7 +266,7 @@ export const getBinStatistics = async (
 	if (!currentMember) return err("currentUserIsNotMember");
 
 	const statisticsRaw = await prismaClient.$queryRaw<BinStatisticIntervalRaw[]>`
-				select time_bucket((${groupByMinutes} || ' minutes')::interval, "measuredAt", ${from}) as "intervalStart",
+			select time_bucket((${groupByMinutes} || ' minutes')::interval, "measuredAt", ${from}) as "intervalStart",
 		    max("distanceCentimeters") as "maxDistanceCentimeters",
 		    min("distanceCentimeters") as "minDistanceCentimeters",
 		    round(avg("distanceCentimeters"))::integer as "avgDistanceCentimeters",

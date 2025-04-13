@@ -32,11 +32,12 @@ model ActivatedBin {
   organization   Organization @relation(fields: [organizationId], references: [id])
 
   measurements Measurement[]
+  sentAlerts   SentAlert[]
 }
 
 // Hypertable by_range('measuredAt')
 model Measurement {
-  measuredAt          DateTime @db.Timestamptz(3)
+  measuredAt          DateTime
   distanceCentimeters Int
   airQualityPpm       Int
 
@@ -88,7 +89,9 @@ model TelegramAlertSource {
   alertSourceId Int         @id
   alertSource   AlertSource @relation(fields: [alertSourceId], references: [id], onDelete: Cascade)
 
-  chatId String
+  activationCode String  @unique @default(uuid()) @db.Uuid
+  chatId         String?
+  username       String?
 }
 
 model SentAlert {
@@ -97,6 +100,9 @@ model SentAlert {
 
   alertSourceId Int
   alertSource   AlertSource @relation(fields: [alertSourceId], references: [id], onDelete: Cascade)
+
+  activatedBinId Int
+  activatedBin   ActivatedBin @relation(fields: [activatedBinId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -106,7 +112,7 @@ model User {
   isSuperAdmin Boolean
 
   microsoftLogin MicrosoftLogin?
-  member         Member[]
+  members        Member[]
   loginCode      LoginCode?
 }
 

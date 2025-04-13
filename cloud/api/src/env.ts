@@ -14,6 +14,10 @@ const envSchema = z.object({
 	AUTH_TOKEN_RETRIEVAL_TIMEOUT_SECONDS: z.coerce.number(),
 	WEB_LOGIN_URL: z.string(),
 	WEB_TOKEN_CALLBACK_URL: z.string(),
+	TELEGRAM_BASE_URL: z.string(),
+	TELEGRAM_BOT_TOKEN: z.string(),
+	TELEGRAM_TIMEOUT_SECONDS: z.coerce.number(),
+	FULNESS_ALERT_JOB_DELAY_SECONDS: z.coerce.number(),
 });
 
 export const env = envSchema.parse(process.env);

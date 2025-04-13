@@ -19,7 +19,7 @@ const trpcClient = createTRPCClient<TrpcRouter>({
 			url: `${env.VITE_API_URL}/trpc`,
 			headers: () => {
 				// TODO: this is inefficient, should load just token
-				return { authorization: loadStorage().token };
+				return { authorization: `Bearer ${loadStorage().token}` };
 			},
 		}),
 	],
