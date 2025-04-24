@@ -53,12 +53,14 @@ const run = async () => {
 			},
 			"Sending alert",
 		);
-		await sendMessage({
-			baseUrl: env.TELEGRAM_BASE_URL,
-			token: env.TELEGRAM_BOT_TOKEN,
-			chatId,
-			text: `Fulness of bin "${bin.name}" reached ${bin.thresholdPercent}% threshold. Current fulness is ${bin.currentPercent}%`,
-		});
+		if (env.TELEGRAM_ENABLED) {
+			await sendMessage({
+				baseUrl: env.TELEGRAM_BASE_URL,
+				token: env.TELEGRAM_BOT_TOKEN,
+				chatId,
+				text: `Fulness of bin "${bin.name}" reached ${bin.thresholdPercent}% threshold. Current fulness is ${bin.currentPercent}%`,
+			});
+		}
 		await saveSentAlert({
 			activatedBinId: bin.id,
 			alertSourceId: bin.alertSourceId,

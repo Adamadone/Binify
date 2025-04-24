@@ -17,6 +17,10 @@ const envSchema = z.object({
 	TELEGRAM_BASE_URL: z.string(),
 	TELEGRAM_BOT_TOKEN: z.string(),
 	TELEGRAM_TIMEOUT_SECONDS: z.coerce.number(),
+	TELEGRAM_ENABLED: z
+		.string()
+		.default("true")
+		.transform((value) => value === "true"),
 	FULNESS_ALERT_JOB_DELAY_SECONDS: z.coerce.number(),
 });
 

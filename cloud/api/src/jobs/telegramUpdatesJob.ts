@@ -6,6 +6,8 @@ import { getUpdates, sendMessage } from "../libs/telegram";
 const ERROR_THROTTLE_SEC = 10;
 
 export const registerTelegramUpdatesJob = async () => {
+	if (!env.TELEGRAM_ENABLED) return;
+
 	let lastUpdateId = -1;
 	while (true) {
 		try {
