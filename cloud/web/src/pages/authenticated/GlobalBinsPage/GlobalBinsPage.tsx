@@ -21,6 +21,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/table";
+import { formatDateTime } from "@/helpers/utils";
 import { trpc } from "@/libs/trpc";
 import type { TrpcOutputs } from "@bin/api";
 import { DialogDescription } from "@radix-ui/react-dialog";
@@ -67,7 +68,11 @@ export const GlobalBinsPage = () => {
 			<TableRow key={bin.id}>
 				<TableCell>{bin.deviceId}</TableCell>
 				<TableCell>{bin.activationCode}</TableCell>
-				<TableCell>{bin.activatedBin?.activatedAt}</TableCell>
+				<TableCell>
+					{bin.activatedBin?.activatedAt
+						? formatDateTime(bin.activatedBin?.activatedAt)
+						: undefined}
+				</TableCell>
 				<TableCell>{bin.activatedBin?.organization.name}</TableCell>
 			</TableRow>
 		));

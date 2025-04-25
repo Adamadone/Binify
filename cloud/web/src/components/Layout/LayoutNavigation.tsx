@@ -1,3 +1,4 @@
+import { useStorage } from "@/context/StorageContext";
 import { useUserMeQuery } from "@/hooks/useUserMeQuery";
 import type { TrpcOutputs } from "@bin/api";
 import {
@@ -36,7 +37,7 @@ type NavSection = {
 	  }
 );
 
-const NAV_SECTIONS: NavSection[] = [
+const getNavSections = (organizationId?: number): NavSection[] => [
 	{
 		id: "root",
 		items: [
@@ -44,6 +45,12 @@ const NAV_SECTIONS: NavSection[] = [
 				to: "/",
 				title: "Home",
 				icon: <HomeIcon />,
+			},
+			{
+				to: "/organization-bins",
+				title: "Organization bins",
+				icon: <MicrochipIcon />,
+				visible: () => organizationId !== undefined,
 			},
 		],
 	},
@@ -62,8 +69,11 @@ const NAV_SECTIONS: NavSection[] = [
 
 export const LayoutNavigation = () => {
 	const userMeQuery = useUserMeQuery();
+	const storage = useStorage();
 
-	const mappedSection = NAV_SECTIONS.map((section) => {
+	const navSections = getNavSections(storage.data.activeOrgId);
+
+	const mappedSection = navSections.map((section) => {
 		const itemsToRender = section.items.filter(
 			(item) => !item.visible || item.visible(userMeQuery.data),
 		);
@@ -91,5 +101,6 @@ export const LayoutNavigation = () => {
 			</SidebarGroup>
 		);
 	});
+
 	return mappedSection;
 };
