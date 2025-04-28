@@ -6,7 +6,7 @@ import {
 	type RegisteredRouter,
 	type ToPathOption,
 } from "@tanstack/react-router";
-import { HomeIcon, MicrochipIcon } from "lucide-react";
+import { HomeIcon, MicrochipIcon, UserCog } from "lucide-react";
 import type { ReactElement } from "react";
 import {
 	SidebarGroup,
@@ -61,6 +61,12 @@ const getNavSections = (organizationId?: number): NavSection[] => [
 				to: "/global-bins",
 				title: "Global bins",
 				icon: <MicrochipIcon />,
+				visible: (user) => !!user?.isSuperAdmin,
+			},
+			{
+				to: "/super-admins",
+				title: "Manage Super Admins",
+				icon: <UserCog />,
 				visible: (user) => !!user?.isSuperAdmin,
 			},
 		],
