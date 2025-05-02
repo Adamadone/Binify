@@ -1,0 +1,22 @@
+{
+	"type": "module",
+	"scripts": {
+		"start": "tsc && node --env-file .env ./dist/index.js",
+		"check": "tsc --noEmit && npm run lint",
+		"lint": "biome check",
+		"lint:fix": "biome check --write"
+	},
+	"dependencies": {
+		"@bin/api": "*",
+		"@trpc/client": "^11.0.0-rc.833",
+		"@trpc/server": "^11.0.0-rc.833",
+		"body-parser": "^2.2.0",
+		"express": "^5.1.0",
+		"zod": "^3.24.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/express": "^5.0.1",
+		"typescript": "^5.8.2"
+	}
+}

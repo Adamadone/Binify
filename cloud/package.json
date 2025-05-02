@@ -2,7 +2,8 @@
   "name": "bin",
   "workspaces": [
     "./api",
-    "./web"
+    "./web",
+    "./hub"
   ],
   "engines": {
     "node": "22"

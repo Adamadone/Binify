@@ -13,3 +13,5 @@ jobs:
         run: cd cloud/web && npm ci && npm run check
       - name: Check api
         run: cd cloud/api && npm ci && npm run check
+      - name: Check hub
+        run: cd cloud/hub && npm ci && npm run check
