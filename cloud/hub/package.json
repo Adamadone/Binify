@@ -1,8 +1,11 @@
 {
 	"type": "module",
 	"scripts": {
-		"start": "tsc && node --env-file .env ./dist/index.js",
+		"dev": "npm-run-all -p tsc:watch start:watch",
+		"start": "tsc && node --env-file ./env/.env ./dist/index.js",
 		"check": "tsc --noEmit && npm run lint",
+		"tsc:watch": "tsc --watch",
+		"start:watch": "nodemon --env-file=./env/dev.env ./dist/index.js",
 		"lint": "biome check",
 		"lint:fix": "biome check --write"
 	},
@@ -17,6 +20,8 @@
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@types/express": "^5.0.1",
+		"nodemon": "^3.1.10",
+		"npm-run-all": "^4.1.5",
 		"typescript": "^5.8.2"
 	}
 }

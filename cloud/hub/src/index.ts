@@ -33,7 +33,13 @@ const appInit = async () => {
 	// Data sync task
 	setInterval(
 		async () => {
-			await dataSynchronizer.syncData();
+			try {
+				await dataSynchronizer.syncData();
+			} catch (err) {
+				console.error(`Error syncing data: ${err}`);
+				return;
+			}
+
 			dataBuffer.clear();
 			await bufferPersistanceAdapter.clearData();
 		},

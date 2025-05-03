@@ -32,7 +32,7 @@ export class BackendDataAdapter {
 							return {
 								airQualityPpm: measurment.airQualityPpm,
 								distanceCentimeters: measurment.distanceCentimeters,
-								measuredAt: measurment.measuredAt.toString(),
+								measuredAt: measurment.measuredAt.toISOString(),
 							};
 						});
 
