@@ -40,11 +40,6 @@ export const OrganizationBinsPage = () => {
 	const storage = useStorage();
 	const organizationId = storage.data.activeOrgId;
 
-	// Redirect if no organization is selected
-	if (organizationId === undefined) {
-		return <Navigate to="/" />;
-	}
-
 	// Queries
 	const organizationsQuery = useQuery(
 		trpc.organizations.listForCurrentUser.queryOptions(),
@@ -112,6 +107,11 @@ export const OrganizationBinsPage = () => {
 			</div>
 		</>
 	);
+
+	// Redirect if no organization is selected
+	if (organizationId === undefined) {
+		return <Navigate to="/" />;
+	}
 
 	return (
 		<>
