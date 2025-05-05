@@ -18,9 +18,10 @@ export const createOrganization = (name: string, currentUser: User) =>
 export type UpdateOrganizationParams = {
 	id: number;
 	name: string;
+	alertThresholdPercent?: number;
 };
 export const updateOrganization = (
-	{ id, name }: UpdateOrganizationParams,
+	{ id, name, alertThresholdPercent }: UpdateOrganizationParams,
 	currentUser: User,
 ) =>
 	prismaClient.$transaction(async (tx) => {
@@ -42,7 +43,7 @@ export const updateOrganization = (
 
 		const updatedOrganization = await tx.organization.update({
 			where: { id },
-			data: { name },
+			data: { name, alertThresholdPercent },
 		});
 		return ok(updatedOrganization);
 	});

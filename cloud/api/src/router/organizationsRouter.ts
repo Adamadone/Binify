@@ -20,7 +20,13 @@ export const organizationsRouter = router({
 		.mutation(({ input, ctx }) => createOrganization(input.name, ctx.user)),
 
 	update: authenticatedProcedure
-		.input(z.object({ id: z.number(), name: z.string() }))
+		.input(
+			z.object({
+				id: z.number(),
+				name: z.string(),
+				alertThresholdPercent: z.number().min(0).max(100).optional(),
+			}),
+		)
 		.mutation(async ({ input, ctx }) =>
 			(await updateOrganization(input, ctx.user)).match(
 				(organization) => organization,
