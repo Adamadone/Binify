@@ -10,11 +10,22 @@ const getDateBeforeMinutes = (beforeMinutes: number) => {
 	return date;
 };
 
-const rl = readline.createInterface({
-	input: process.stdin,
-	output: process.stdout,
-});
-rl.question("deviceId: ", async (deviceId) => {
+async function main() {
+	// Try to read deviceId from argv, else fall back to interactive prompt
+	const cliDeviceId = process.argv[2];
+	const deviceId =
+		cliDeviceId ??
+		(await new Promise<string>((resolve) => {
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout,
+			});
+			rl.question("deviceId: ", (answer) => {
+				rl.close();
+				resolve(answer);
+			});
+		}));
+
 	const devices: ImportBinBatchMeasurementsParams["devices"] = [
 		{
 			deviceId,
@@ -25,7 +36,8 @@ rl.question("deviceId: ", async (deviceId) => {
 			})),
 		},
 	];
-	await importBinBatchMeasurements({ devices });
 
-	rl.close();
-});
+	await importBinBatchMeasurements({ devices });
+}
+
+main().catch(console.error);

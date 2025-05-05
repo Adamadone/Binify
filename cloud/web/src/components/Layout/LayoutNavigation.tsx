@@ -50,7 +50,7 @@ const getNavSections = (organizationId?: number): NavSection[] => [
 				to: "/organization-bins",
 				title: "Organization bins",
 				icon: <MicrochipIcon />,
-				visible: () => organizationId !== undefined,
+				visible: (user) => !!user && organizationId !== undefined,
 			},
 		],
 	},
