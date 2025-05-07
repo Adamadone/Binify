@@ -6,7 +6,7 @@
 		"dev": "vite --port 3000",
 		"build": "tsc -b && vite build",
 		"preview": "vite preview",
-		"check": "tsc --noEmit && npm run lint",
+		"check": "tsc -b && npm run lint",
 		"lint": "biome check",
 		"lint:fix": "biome check --write"
 	},
@@ -19,6 +19,7 @@
 		"@radix-ui/react-select": "^2.1.6",
 		"@radix-ui/react-separator": "^1.1.2",
 		"@radix-ui/react-slot": "^1.1.2",
+		"@radix-ui/react-tabs": "^1.1.11",
 		"@radix-ui/react-tooltip": "^1.1.8",
 		"@tanstack/react-query": "^5.68.0",
 		"@tanstack/react-router": "^1.114.25",

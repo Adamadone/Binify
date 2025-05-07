@@ -34,7 +34,7 @@ export const DeviceDetailPage: FC = memo(() => {
 		initialOrgIdRef.current !== null &&
 		organizationId !== initialOrgIdRef.current
 	) {
-		navigate({ to: "/devices" });
+		navigate({ to: "/organization-bins" });
 	}
 
 	// Latest measurement timestamp query
