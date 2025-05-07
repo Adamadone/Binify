@@ -94,14 +94,21 @@ export const getTimeRangeParams = (
 	latestTimestamp?: string | Date,
 ) => {
 	const endTime = latestTimestamp ? new Date(latestTimestamp) : new Date();
+	const groupByMins = TIME_RANGE_MINUTES[selectedRange];
 
 	const startTime = new Date(
 		endTime.getTime() - TIME_RANGE_MILLISECONDS[selectedRange],
 	);
 
+	if (groupByMins === 60) {
+		startTime.setUTCMinutes(0, 0, 0);
+	} else if (groupByMins >= 1440) {
+		startTime.setUTCHours(0, 0, 0, 0);
+	}
+
 	return {
 		from: startTime.toISOString(),
 		to: endTime.toISOString(),
-		groupByMinutes: TIME_RANGE_MINUTES[selectedRange],
+		groupByMinutes: groupByMins,
 	};
 };

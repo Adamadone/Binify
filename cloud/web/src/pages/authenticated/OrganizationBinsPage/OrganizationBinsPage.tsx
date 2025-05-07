@@ -87,6 +87,20 @@ export const OrganizationBinsPage = () => {
 	> = useCallback(
 		(list) => (
 			<>
+				{list.bins.length === 0 && (
+					<div className="space-y-8">
+						<Card className="mb-8">
+							<CardHeader>
+								<CardTitle className="text-3xl">Device Statistics</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-center text-muted-foreground">
+									No devices are currently paired with this organization.
+								</div>
+							</CardContent>
+						</Card>
+					</div>
+				)}
 				{/* Charts Section */}
 				{list.bins.length > 0 && (
 					<Card className="mb-8">
@@ -95,8 +109,8 @@ export const OrganizationBinsPage = () => {
 						</CardHeader>
 						<CardContent>
 							<p className="text-sm text-muted-foreground mb-6">
-								Showing measurement data for the past 24 hours since the last
-								measurement of each device.
+								Showing averaged measurement data for the past 24 hours since
+								the last measurement of each device.
 							</p>
 							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 								{list.bins.map((bin) => (

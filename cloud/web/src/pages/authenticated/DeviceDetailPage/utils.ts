@@ -13,19 +13,15 @@ export const formatUtcTime = (date: Date): string => {
  * Formats a Date object to dd MMM HH:MM format in UTC
  * For non-24h time ranges, omits the time component
  */
-export const formatUtcDateTime = (
-	date: Date,
-	timeRange?: TimeRange,
-): string => {
-	const day = String(date.getUTCDate()).padStart(2, "0");
-	const month = date.toLocaleString("en-US", {
-		month: "short",
-		timeZone: "UTC",
-	});
-	const time = formatUtcTime(date);
+export function formatUtcDateTime(date: Date, timeRange?: TimeRange): string {
+	const hh = String(date.getUTCHours()).padStart(2, "0");
+	const mm = String(date.getUTCMinutes()).padStart(2, "0");
 
-	if (!timeRange || timeRange === "24h") {
-		return `${day} ${month} ${time}`;
+	if (timeRange === "24h") {
+		return `${hh}:${mm}`;
 	}
-	return `${day} ${month}`;
-};
+
+	const dd = String(date.getUTCDate()).padStart(2, "0");
+	const MM = String(date.getUTCMonth() + 1).padStart(2, "0");
+	return `${dd}/${MM}`;
+}
