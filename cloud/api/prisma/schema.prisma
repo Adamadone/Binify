@@ -48,12 +48,11 @@ model Measurement {
 }
 
 model Organization {
-  id                    Int            @id @default(autoincrement())
-  name                  String
-  bins                  ActivatedBin[]
-  members               Member[]
-  alertThresholdPercent Int?
-  AlertSource           AlertSource[]
+  id          Int            @id @default(autoincrement())
+  name        String
+  bins        ActivatedBin[]
+  members     Member[]
+  AlertSource AlertSource[]
 }
 
 enum Role {
@@ -74,9 +73,10 @@ model Member {
 }
 
 model AlertSource {
-  id            Int    @id @default(autoincrement())
-  name          String
-  repeatMinutes Int?
+  id               Int    @id @default(autoincrement())
+  name             String
+  thresholdPercent Int
+  repeatMinutes    Int?
 
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)

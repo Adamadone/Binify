@@ -16,6 +16,7 @@ export const alertsRouter = router({
 			z.object({
 				organizationId: z.number(),
 				name: z.string(),
+				thresholdPercent: z.number().positive().max(100),
 				repeatMinutes: z.number().positive().optional(),
 			}),
 		)
@@ -65,6 +66,7 @@ export const alertsRouter = router({
 			z.object({
 				id: z.number(),
 				name: z.string().optional(),
+				thresholdPercent: z.number().positive().max(100),
 				repeatMinutes: z.number().positive().optional().nullable(),
 			}),
 		)

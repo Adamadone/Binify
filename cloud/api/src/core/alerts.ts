@@ -6,10 +6,16 @@ import { prismaClient } from "../libs/prisma";
 export type CreateAlertSourceParams = {
 	organizationId: number;
 	name: string;
+	thresholdPercent: number;
 	repeatMinutes?: number;
 };
 export const createTelegramAlertSource = (
-	{ organizationId, name, repeatMinutes }: CreateAlertSourceParams,
+	{
+		organizationId,
+		name,
+		thresholdPercent,
+		repeatMinutes,
+	}: CreateAlertSourceParams,
 	currentUser: User,
 ) =>
 	prismaClient.$transaction(async (tx) => {
@@ -25,6 +31,7 @@ export const createTelegramAlertSource = (
 			data: {
 				organizationId,
 				name,
+				thresholdPercent,
 				repeatMinutes,
 				telegramAlertSource: {
 					create: {},
@@ -60,10 +67,11 @@ export const deleteAlertSource = (id: number, currentUser: User) =>
 export type UpdateAlertSourceParams = {
 	id: number;
 	name?: string;
+	thresholdPercent?: number;
 	repeatMinutes?: number | null;
 };
 export const updateAlertSource = (
-	{ id, name, repeatMinutes }: UpdateAlertSourceParams,
+	{ id, name, thresholdPercent, repeatMinutes }: UpdateAlertSourceParams,
 	currentUser: User,
 ) =>
 	prismaClient.$transaction(async (tx) => {
@@ -83,7 +91,7 @@ export const updateAlertSource = (
 
 		const updated = await tx.alertSource.update({
 			where: { id },
-			data: { name, repeatMinutes },
+			data: { name, thresholdPercent, repeatMinutes },
 			include: { telegramAlertSource: true },
 		});
 		return ok(updated);
@@ -220,14 +228,16 @@ export const listBinsToAlert = () =>
 			thresholds AS (
 				SELECT
 					activatedBin.id AS "activatedBinId",
+					(SELECT alertSource.id) as  "alertSourceId",
 					(
 						SELECT
-							maxDistance."distanceCentimeters" * organization."alertThresholdPercent" / 100
+							maxDistance."distanceCentimeters" * alertSource."thresholdPercent" / 100
 					) AS threshold,
-					organization."alertThresholdPercent" as "thresholdPercent"
+					(SELECT alertSource."thresholdPercent") as "thresholdPercent"
 				FROM
 					"ActivatedBin" activatedBin
-					INNER JOIN "Organization" organization ON organization.id = activatedBin."organizationId"
+				INNER JOIN "Organization" organization ON organization.id = activatedBin."organizationId"
+					INNER JOIN "AlertSource" alertSource ON alertSource."organizationId" = organization.id
 					INNER JOIN maxDistances maxDistance ON maxDistance."activatedBinId" = activatedBin.id
 			),
 			lastSentAlerts AS (
@@ -251,9 +261,9 @@ export const listBinsToAlert = () =>
 			) AS "currentPercent"
 		FROM
 			"ActivatedBin" activatedBin
-			INNER JOIN latestMeasurements latestMeasurement ON latestMeasurement."activatedBinId" = activatedBin.id
-			INNER JOIN thresholds threshold ON threshold."activatedBinId" = activatedBin.id
+		INNER JOIN latestMeasurements latestMeasurement ON latestMeasurement."activatedBinId" = activatedBin.id
 			INNER JOIN "AlertSource" alertSource ON alertSource."organizationId" = activatedBin."organizationId"
+			INNER JOIN thresholds threshold ON threshold."activatedBinId" = activatedBin.id AND threshold."alertSourceId" = alertSource."id"
 			INNER JOIN maxDistances maxDistance on maxDistance."activatedBinId" = activatedBin.id
 			LEFT JOIN lastSentAlerts lastSentAlert ON lastSentAlert."activatedBinId" = activatedBin.id
 			AND lastSentAlert."alertSourceId" = alertSource.id

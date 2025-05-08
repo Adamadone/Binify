@@ -9,7 +9,12 @@ import { sendMessage } from "../libs/telegram";
 
 export const registerFulnessAlertJob = async () => {
 	while (true) {
-		await run();
+		try {
+			await run();
+		} catch (err) {
+			logger.error(err, "Error occured during fullnes alert job");
+		}
+
 		await new Promise((resolve) =>
 			setTimeout(resolve, env.FULNESS_ALERT_JOB_DELAY_SECONDS * 1_000),
 		);
