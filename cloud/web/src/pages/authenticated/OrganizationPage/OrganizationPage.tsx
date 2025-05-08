@@ -19,6 +19,7 @@ import { type FC, useCallback, useEffect, useState } from "react";
 import { ConfirmationDialog } from "../../../components/ConfirmationDialog";
 import { useOrganizationOperations } from "../../../hooks/useOrganizationOperations";
 import { AddMemberDialog } from "./AddMemberDialog";
+import { AlertSources } from "./AlertSources/AlertSources";
 import { ChangeMemberRoleDialog } from "./ChangeMemberRoleDialog";
 import { EditNameDialog } from "./EditNameDialog";
 import { MemberRow } from "./MemberRow";
@@ -129,7 +130,7 @@ export const OrganizationPage: FC = () => {
 	const renderContent = useCallback(
 		(organization: Organization) => {
 			return (
-				<div className="space-y-8">
+				<>
 					{/* Organization Details Card */}
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between">
@@ -214,7 +215,7 @@ export const OrganizationPage: FC = () => {
 							/>
 						</CardContent>
 					</Card>
-				</div>
+				</>
 			);
 		},
 		[
@@ -274,7 +275,13 @@ export const OrganizationPage: FC = () => {
 			/>
 
 			<Layout title="Organization Settings">
-				<DynamicContent {...organizationQuery} renderContent={renderContent} />
+				<div className="space-y-8">
+					<DynamicContent
+						{...organizationQuery}
+						renderContent={renderContent}
+					/>
+					<AlertSources organizationId={id} />
+				</div>
 			</Layout>
 		</>
 	);

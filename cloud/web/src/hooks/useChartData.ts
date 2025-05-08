@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { getTimeRangeParams } from "../pages/authenticated/DeviceDetailPage/charts/chartUtils";
 import { QUERY } from "../pages/authenticated/DeviceDetailPage/constants";
 import type { TimeRange } from "../pages/authenticated/DeviceDetailPage/types";
-import { formatUtcDateTime } from "../pages/authenticated/DeviceDetailPage/utils";
+import { formatDateTime } from "../pages/authenticated/DeviceDetailPage/utils";
 
 type DataPoint = {
 	avgFulnessPercentage?: number | null;
@@ -22,7 +22,6 @@ export type ChartData = {
 interface UseChartDataOptions {
 	binId: string;
 	timeRange: TimeRange;
-	latestTimestamp?: string | Date;
 	dataKey: "avgFulnessPercentage" | "avgAirQualityPpm";
 }
 
@@ -33,7 +32,6 @@ interface UseChartDataOptions {
 export function useChartData({
 	binId,
 	timeRange,
-	latestTimestamp,
 	dataKey,
 }: UseChartDataOptions) {
 	// Fetch statistics from the API
@@ -41,11 +39,11 @@ export function useChartData({
 		trpc.bins.statistics.queryOptions(
 			{
 				activatedBinId: Number(binId),
-				...getTimeRangeParams(timeRange, latestTimestamp),
+				...getTimeRangeParams(timeRange),
 			},
 			{
 				staleTime: QUERY.STALE_TIME,
-				enabled: !!binId && !!latestTimestamp,
+				enabled: !!binId,
 			},
 		),
 	);
@@ -60,7 +58,7 @@ export function useChartData({
 				const date = new Date(interval.intervalStart);
 				return {
 					intervalStart: date.getTime(),
-					formattedTime: formatUtcDateTime(date, timeRange),
+					formattedTime: formatDateTime(date, timeRange),
 					[dataKey]: interval[dataKey] ?? undefined,
 				};
 			})

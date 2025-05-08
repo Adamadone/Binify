@@ -1,5 +1,5 @@
 import { type Bin, type Measurement, Prisma, type User } from "@prisma/client";
-import { type Result, err, ok, okAsync } from "neverthrow";
+import { err, ok, okAsync } from "neverthrow";
 import { v4 as uuid } from "uuid";
 import { logger } from "../libs/pino";
 import { prismaClient } from "../libs/prisma";
@@ -305,41 +305,5 @@ export const getBinStatistics = async (
 	return ok<BinStatistic>({
 		maxDistanceCentimeters: globalMaxDistanceCentimeters,
 		intervals: statistics,
-	});
-};
-
-export const getLatestMeasurementTimeForOrganization = async (
-	organizationId: number,
-	currentUser: User,
-): Promise<
-	Result<{ latestTimestamp: string | null }, "currentUserIsNotMember">
-> => {
-	const isMember = await prismaClient.member.findFirst({
-		where: {
-			userId: currentUser.id,
-			organizationId,
-		},
-	});
-
-	if (!isMember) {
-		logger.warn(
-			{ userId: currentUser.id, organizationId },
-			"User attempted to get latest measurement time for org they are not a member of.",
-		);
-		return err("currentUserIsNotMember");
-	}
-	const latestMeasurement = await prismaClient.$queryRaw<
-		{ latest: Date | null }[]
-	>`
-            SELECT MAX(m."measuredAt") as latest
-            FROM "Measurement" m
-            JOIN "ActivatedBin" ab ON m."activatedBinId" = ab.id
-            WHERE ab."organizationId" = ${organizationId}
-        `;
-
-	const latestTimestamp = latestMeasurement[0]?.latest || null;
-
-	return ok({
-		latestTimestamp: latestTimestamp ? latestTimestamp.toISOString() : null,
 	});
 };

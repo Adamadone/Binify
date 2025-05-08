@@ -7,7 +7,6 @@ import {
 	createBin,
 	deactivateBin,
 	getBinStatistics,
-	getLatestMeasurementTimeForOrganization,
 	importBinBatchMeasurements,
 	listActivatedBinsForOrganization,
 	listBinsWithActivatedBinsAndOrganizations,
@@ -213,33 +212,6 @@ export const binsRouter = router({
 							throw new TRPCError({
 								code: "BAD_REQUEST",
 								message: "This request would result in too many groups/points",
-							});
-						default:
-							return err satisfies never;
-					}
-				},
-			),
-		),
-	getLatestMeasurementTime: authenticatedProcedure
-		.input(
-			z.object({
-				organizationId: z.number(),
-			}),
-		)
-		.query(async ({ input, ctx }) =>
-			(
-				await getLatestMeasurementTimeForOrganization(
-					input.organizationId,
-					ctx.user,
-				)
-			).match(
-				(result) => result,
-				(err) => {
-					switch (err) {
-						case "currentUserIsNotMember":
-							throw new TRPCError({
-								code: "FORBIDDEN",
-								message: "You are not a member of this organization",
 							});
 						default:
 							return err satisfies never;

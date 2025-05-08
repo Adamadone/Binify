@@ -6,6 +6,7 @@ import { Layout } from "@/components/Layout/Layout";
 import { Pagination } from "@/components/Pagination";
 import { Alert, AlertDescription, AlertTitle } from "@/components/alert";
 import { Button } from "@/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import {
 	Dialog,
 	DialogContent,
@@ -84,7 +85,7 @@ export const GlobalBinsPage = () => {
 							<TableHead>Device id</TableHead>
 							<TableHead>Activation code</TableHead>
 							<TableHead>Activated at</TableHead>
-							<TableHead>Organization id</TableHead>
+							<TableHead>Organization</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>{mappedRows}</TableBody>
@@ -118,20 +119,25 @@ export const GlobalBinsPage = () => {
 			</Dialog>
 
 			<Layout title="Global bins">
-				<div className="flex justify-end mb-2">
-					<Button onClick={handleCreateDialogOpen}>
-						<Plus />
-						Create bin
-					</Button>
-				</div>
-				{createBinData && (
-					<Alert className="mb-2">
-						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>Last generated device id</AlertTitle>
-						<AlertDescription>{createBinData.deviceId}</AlertDescription>
-					</Alert>
-				)}
-				<DynamicContent {...binsQuery} renderContent={renderContent} />
+				<Card className="mb-8">
+					<CardHeader className="flex justify-between">
+						<CardTitle>Bins</CardTitle>
+						<Button onClick={handleCreateDialogOpen}>
+							<Plus />
+							Create bin
+						</Button>
+					</CardHeader>
+					<CardContent>
+						{createBinData && (
+							<Alert className="mb-2">
+								<AlertCircle className="h-4 w-4" />
+								<AlertTitle>Last generated device id</AlertTitle>
+								<AlertDescription>{createBinData.deviceId}</AlertDescription>
+							</Alert>
+						)}
+						<DynamicContent {...binsQuery} renderContent={renderContent} />
+					</CardContent>
+				</Card>
 			</Layout>
 		</>
 	);

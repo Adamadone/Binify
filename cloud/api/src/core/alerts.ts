@@ -113,6 +113,7 @@ export const listOrganizationAlertSources = (
 		const alertSources = await tx.alertSource.findMany({
 			where: { organizationId },
 			include: { telegramAlertSource: true },
+			orderBy: { id: "asc" },
 		});
 		return ok(alertSources);
 	});

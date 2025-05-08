@@ -1,9 +1,6 @@
-import { DynamicContent } from "@/components/DynamicContent";
 import { Layout } from "@/components/Layout/Layout";
 import { Button } from "@/components/button";
 import { useStorage } from "@/context/StorageContext";
-import { trpc } from "@/libs/trpc";
-import { useQuery } from "@tanstack/react-query";
 import {
 	Navigate,
 	useNavigate,
@@ -11,10 +8,9 @@ import {
 	useSearch,
 } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { type FC, memo, useCallback, useRef } from "react";
+import { type FC, memo, useRef } from "react";
 import { AirQualityChart } from "./charts/AirQualityChart";
 import { FullnessChart } from "./charts/FullnessChart";
-import { QUERY } from "./constants";
 
 export const DeviceDetailPage: FC = memo(() => {
 	const navigate = useNavigate();
@@ -37,20 +33,8 @@ export const DeviceDetailPage: FC = memo(() => {
 		navigate({ to: "/organization-bins" });
 	}
 
-	// Latest measurement timestamp query
-	const latestMeasurementQuery = useQuery(
-		trpc.bins.getLatestMeasurementTime.queryOptions(
-			{ organizationId },
-			{
-				staleTime: QUERY.STALE_TIME,
-				refetchOnWindowFocus: false,
-				enabled: !!organizationId,
-			},
-		),
-	);
-
-	const renderContent = useCallback(() => {
-		return (
+	return (
+		<Layout title={`Device Details - ${binName}`}>
 			<div className="space-y-8">
 				<div className="flex items-center gap-4">
 					<Button
@@ -67,32 +51,10 @@ export const DeviceDetailPage: FC = memo(() => {
 
 				{/* Charts */}
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-					<FullnessChart
-						binId={binId}
-						latestTimestamp={
-							latestMeasurementQuery.data?.latestTimestamp ?? undefined
-						}
-					/>
-					<AirQualityChart
-						binId={binId}
-						binName={binName}
-						latestTimestamp={
-							latestMeasurementQuery.data?.latestTimestamp ?? undefined
-						}
-					/>
+					<FullnessChart binId={binId} />
+					<AirQualityChart binId={binId} binName={binName} />
 				</div>
 			</div>
-		);
-	}, [binName, binId, latestMeasurementQuery.data?.latestTimestamp]);
-
-	return (
-		<Layout title={`Device Details - ${binName}`}>
-			<DynamicContent
-				data={{ name: binName }}
-				isPending={latestMeasurementQuery.isPending}
-				error={latestMeasurementQuery.error}
-				renderContent={renderContent}
-			/>
 		</Layout>
 	);
 });

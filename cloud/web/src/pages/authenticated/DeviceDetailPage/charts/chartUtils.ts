@@ -86,18 +86,15 @@ export const generateTicks = (
 	return result;
 };
 
+const END_TIME = new Date();
 /**
  * Calculate time range parameters for API queries
  */
-export const getTimeRangeParams = (
-	selectedRange: TimeRange,
-	latestTimestamp?: string | Date,
-) => {
-	const endTime = latestTimestamp ? new Date(latestTimestamp) : new Date();
+export const getTimeRangeParams = (selectedRange: TimeRange) => {
 	const groupByMins = TIME_RANGE_MINUTES[selectedRange];
 
 	const startTime = new Date(
-		endTime.getTime() - TIME_RANGE_MILLISECONDS[selectedRange],
+		END_TIME.getTime() - TIME_RANGE_MILLISECONDS[selectedRange],
 	);
 
 	if (groupByMins === 60) {
@@ -108,7 +105,7 @@ export const getTimeRangeParams = (
 
 	return {
 		from: startTime.toISOString(),
-		to: endTime.toISOString(),
+		to: END_TIME.toISOString(),
 		groupByMinutes: groupByMins,
 	};
 };

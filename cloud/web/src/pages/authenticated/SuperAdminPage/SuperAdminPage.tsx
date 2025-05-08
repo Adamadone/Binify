@@ -9,6 +9,7 @@ import {
 } from "@/components/DynamicContent";
 import { Layout } from "@/components/Layout/Layout";
 import { Button } from "@/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import {
 	Table,
 	TableBody,
@@ -157,13 +158,18 @@ export const SuperAdminPage = () => {
 			/>
 
 			<Layout title="Manage Super Admins">
-				<div className="flex justify-end mb-2">
-					<Button onClick={() => setIsCreateDialogOpen(true)}>
-						<Plus className="h-4 w-4 mr-2" />
-						Promote User
-					</Button>
-				</div>
-				<DynamicContent {...userQuery} renderContent={renderContent} />
+				<Card className="mb-8">
+					<CardHeader className="flex justify-between">
+						<CardTitle>Super admins</CardTitle>
+						<Button onClick={() => setIsCreateDialogOpen(true)}>
+							<Plus className="h-4 w-4 mr-2" />
+							Promote User
+						</Button>
+					</CardHeader>
+					<CardContent>
+						<DynamicContent {...userQuery} renderContent={renderContent} />
+					</CardContent>
+				</Card>
 			</Layout>
 		</>
 	);

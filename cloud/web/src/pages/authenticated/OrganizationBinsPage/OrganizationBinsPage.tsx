@@ -25,7 +25,6 @@ import { trpc } from "@/libs/trpc";
 import type { TrpcOutputs } from "@bin/api";
 import { Navigate, useNavigate } from "@tanstack/react-router";
 import { FullnessChart } from "../DeviceDetailPage/charts/FullnessChart";
-import { QUERY } from "../DeviceDetailPage/constants";
 import { ActivateBinDialog } from "./ActivateBinDialog";
 import { DeactivateBinDialog } from "./DeactivateBinDialog";
 
@@ -50,18 +49,6 @@ export const OrganizationBinsPage = () => {
 	// Queries
 	const organizationsQuery = useQuery(
 		trpc.organizations.listForCurrentUser.queryOptions(),
-	);
-
-	// Latest measurement timestamp query for charts
-	const latestMeasurementQuery = useQuery(
-		trpc.bins.getLatestMeasurementTime.queryOptions(
-			{ organizationId },
-			{
-				staleTime: QUERY.STALE_TIME,
-				refetchOnWindowFocus: false,
-				enabled: !!organizationId,
-			},
-		),
 	);
 
 	const binsQuery = useQuery(
@@ -132,10 +119,6 @@ export const OrganizationBinsPage = () => {
 										<CardContent>
 											<FullnessChart
 												binId={bin.id.toString()}
-												latestTimestamp={
-													latestMeasurementQuery.data?.latestTimestamp ??
-													undefined
-												}
 												initialTimeRange="24h"
 												showTimeRangeSelector={false}
 												height={200}
@@ -201,7 +184,7 @@ export const OrganizationBinsPage = () => {
 				</Card>
 			</>
 		),
-		[latestMeasurementQuery.data?.latestTimestamp, navigate, isAdmin, page],
+		[navigate, isAdmin, page],
 	);
 
 	// Redirect if no organization is selected
@@ -230,8 +213,8 @@ export const OrganizationBinsPage = () => {
 			<Layout title="Organization Bins">
 				<DynamicContent
 					data={binsQuery.data}
-					isPending={binsQuery.isPending || latestMeasurementQuery.isPending}
-					error={binsQuery.error || latestMeasurementQuery.error}
+					isPending={binsQuery.isPending}
+					error={binsQuery.error}
 					renderContent={renderContent}
 				/>
 			</Layout>

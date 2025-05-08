@@ -6,14 +6,13 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { useChartData } from "../../../../hooks/useChartData";
 import { CHART, TIME_RANGE } from "../constants";
 import type { TimeRange } from "../types";
-import { formatUtcTime } from "../utils";
+import { formatTime } from "../utils";
 import { FullnessTooltip } from "./ChartTooltips";
 import { TimeRangeSelector } from "./TimeRangeSelector";
 import { chartConfig, generateTicks } from "./chartUtils";
 
 interface FullnessChartProps {
 	binId: string;
-	latestTimestamp?: string | Date;
 	initialTimeRange?: TimeRange;
 	showTimeRangeSelector?: boolean;
 	height?: number;
@@ -22,7 +21,6 @@ interface FullnessChartProps {
 
 export const FullnessChart: FC<FullnessChartProps> = ({
 	binId,
-	latestTimestamp,
 	initialTimeRange = TIME_RANGE.DEFAULT,
 	showTimeRangeSelector = true,
 	height = CHART.DEFAULT_HEIGHT,
@@ -39,7 +37,6 @@ export const FullnessChart: FC<FullnessChartProps> = ({
 	} = useChartData({
 		binId,
 		timeRange,
-		latestTimestamp,
 		dataKey: "avgFulnessPercentage",
 	});
 
@@ -81,7 +78,7 @@ export const FullnessChart: FC<FullnessChartProps> = ({
 						tickFormatter={(ts) => {
 							const date = new Date(ts);
 							return timeRange === "24h"
-								? formatUtcTime(date)
+								? formatTime(date)
 								: `${date.getUTCDate()}/${date.getUTCMonth() + 1}`;
 						}}
 						tickLine={false}

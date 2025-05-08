@@ -6,7 +6,7 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { type ChartData, useChartData } from "../../../../hooks/useChartData";
 import { CHART, TIME_RANGE } from "../constants";
 import type { TimeRange } from "../types";
-import { formatUtcTime } from "../utils";
+import { formatTime } from "../utils";
 import { AirQualityTooltip } from "./ChartTooltips";
 import { TimeRangeSelector } from "./TimeRangeSelector";
 import { chartConfig, generateTicks } from "./chartUtils";
@@ -14,7 +14,6 @@ import { chartConfig, generateTicks } from "./chartUtils";
 interface AirQualityChartProps {
 	binId: string;
 	binName: string;
-	latestTimestamp?: string | Date;
 	initialTimeRange?: TimeRange;
 	showTimeRangeSelector?: boolean;
 	height?: number;
@@ -23,7 +22,6 @@ interface AirQualityChartProps {
 
 export const AirQualityChart: FC<AirQualityChartProps> = ({
 	binId,
-	latestTimestamp,
 	initialTimeRange = TIME_RANGE.DEFAULT,
 	showTimeRangeSelector = true,
 	height = CHART.DEFAULT_HEIGHT,
@@ -40,7 +38,6 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 	} = useChartData({
 		binId,
 		timeRange,
-		latestTimestamp,
 		dataKey: "avgAirQualityPpm",
 	});
 
@@ -83,7 +80,7 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 							tickFormatter={(ts) => {
 								const date = new Date(ts);
 								return timeRange === "24h"
-									? formatUtcTime(date)
+									? formatTime(date)
 									: `${date.getUTCDate()}/${date.getUTCMonth() + 1}`;
 							}}
 							tickLine={false}
