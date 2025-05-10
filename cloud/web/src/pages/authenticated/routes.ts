@@ -1,3 +1,4 @@
+import { alertHistoryRoute } from "./AlertHistoryPage/route";
 import { deviceDetailRoute } from "./DeviceDetailPage/route";
 import { globalBinsRoute } from "./GlobalBinsPage/route";
 import { organizationBinsRoute } from "./OrganizationBinsPage/route";
@@ -11,4 +12,5 @@ export const authenticatedRoutes = authenticatedRoute.addChildren([
 	deviceDetailRoute,
 	organizationBinsRoute,
 	superAdminRoute,
+	alertHistoryRoute,
 ]);

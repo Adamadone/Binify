@@ -1,12 +1,15 @@
 import { useStorage } from "@/context/StorageContext";
 import { useUserMeQuery } from "@/hooks/useUserMeQuery";
+import { trpc } from "@/libs/trpc";
+import { Role } from "@/pages/authenticated/OrganizationPage/types";
 import type { TrpcOutputs } from "@bin/api";
+import { useQuery } from "@tanstack/react-query";
 import {
 	Link,
 	type RegisteredRouter,
 	type ToPathOption,
 } from "@tanstack/react-router";
-import { HomeIcon, MicrochipIcon, UserCog } from "lucide-react";
+import { AlertCircle, HomeIcon, MicrochipIcon, UserCog } from "lucide-react";
 import type { ReactElement } from "react";
 import {
 	SidebarGroup,
@@ -37,7 +40,11 @@ type NavSection = {
 	  }
 );
 
-const getNavSections = (organizationId?: number): NavSection[] => [
+const getNavSections = (
+	isOrgAdmin: boolean,
+	isOrgMember: boolean,
+	organizationId?: number,
+): NavSection[] => [
 	{
 		id: "root",
 		items: [
@@ -50,7 +57,18 @@ const getNavSections = (organizationId?: number): NavSection[] => [
 				to: "/organization-bins",
 				title: "Organization bins",
 				icon: <MicrochipIcon />,
-				visible: (user) => !!user && organizationId !== undefined,
+				visible: (user) => !!user && isOrgMember,
+			},
+		],
+	},
+	{
+		title: "Organization administration",
+		items: [
+			{
+				to: "/alert-history",
+				title: "Alert history",
+				icon: <AlertCircle />,
+				visible: (user) => !!user && organizationId !== undefined && isOrgAdmin,
 			},
 		],
 	},
@@ -77,7 +95,25 @@ export const LayoutNavigation = () => {
 	const userMeQuery = useUserMeQuery();
 	const storage = useStorage();
 
-	const navSections = getNavSections(storage.data.activeOrgId);
+	const organizationId = storage.data.activeOrgId;
+
+	const organizationsQuery = useQuery(
+		trpc.organizations.listForCurrentUser.queryOptions(),
+	);
+
+	const currentOrganization =
+		organizationId !== undefined
+			? organizationsQuery.data?.find((org) => org.id === organizationId)
+			: undefined;
+
+	const isOrgAdmin = currentOrganization?.member?.role === Role.ADMIN;
+	const isOrgMember = currentOrganization !== undefined;
+
+	const navSections = getNavSections(
+		isOrgAdmin,
+		isOrgMember,
+		storage.data.activeOrgId,
+	);
 
 	const mappedSection = navSections.map((section) => {
 		const itemsToRender = section.items.filter(
