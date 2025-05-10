@@ -20,7 +20,7 @@ endif()
 target_include_directories(mlem PRIVATE ${CMAKE_CURRENT_LIST_DIR}/config)
 
 # Adjust libraries as needed
-target_link_libraries(mlem pico_cyw43_arch_lwip_poll pico_stdlib ${CMAKE_SOURCE_DIR}/zig-out/mlem.o)
+target_link_libraries(mlem pico_cyw43_arch_lwip_poll pico_stdlib hardware_adc ${CMAKE_SOURCE_DIR}/zig-out/mlem.o)
 
 # Generate binary
 pico_add_extra_outputs(mlem)
