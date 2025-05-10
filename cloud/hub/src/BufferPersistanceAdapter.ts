@@ -33,7 +33,20 @@ export class BufferPersistanceAdapter<T> {
 
 		const splitDataPoints = storedData.split(";");
 
-		return splitDataPoints.map((dataPoint) => JSON.parse(dataPoint)) as T[];
+		return splitDataPoints.map((dataPoint) => {
+			const parsedDataPoint = JSON.parse(dataPoint);
+
+			if (
+				"measurment" in parsedDataPoint &&
+				"measuredAt" in parsedDataPoint.measurment
+			) {
+				parsedDataPoint.measurment.measuredAt = new Date(
+					parsedDataPoint.measurment.measuredAt,
+				);
+			}
+
+			return parsedDataPoint;
+		}) as T[];
 	}
 
 	async clearData() {

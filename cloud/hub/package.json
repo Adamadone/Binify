@@ -7,7 +7,9 @@
 		"tsc:watch": "tsc --watch",
 		"start:watch": "nodemon --env-file=./env/dev.env ./dist/index.js",
 		"lint": "biome check",
-		"lint:fix": "biome check --write"
+		"lint:fix": "biome check --write",
+		"build": "tsc",
+		"run": "node --env-file ./env/.env ./dist/index.js"
 	},
 	"dependencies": {
 		"@bin/api": "*",
