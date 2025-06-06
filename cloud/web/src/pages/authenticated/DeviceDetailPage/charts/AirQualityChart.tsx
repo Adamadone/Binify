@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { ChartContainer, ChartTooltip } from "@/components/chart";
 import { type FC, useCallback, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { DatePicker } from "../../../../components/datepicker";
 import { type ChartData, useChartData } from "../../../../hooks/useChartData";
 import { CHART, TIME_RANGE } from "../constants";
 import type { TimeRange } from "../types";
@@ -28,6 +29,7 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 	className,
 }) => {
 	const [timeRange, setTimeRange] = useState<TimeRange>(initialTimeRange);
+	const [startDate, setStartDate] = useState<Date | undefined>(undefined);
 
 	// Use the custom hook for data fetching and processing
 	const {
@@ -39,6 +41,7 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 		binId,
 		timeRange,
 		dataKey: "avgAirQualityPpm",
+		startDate,
 	});
 
 	// Chart rendering function
@@ -133,7 +136,13 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
 						<CardTitle>Air Quality</CardTitle>
-						<TimeRangeSelector timeRange={timeRange} onChange={setTimeRange} />
+						<div className="flex items-center gap-2">
+							<TimeRangeSelector
+								timeRange={timeRange}
+								onChange={setTimeRange}
+							/>
+							<DatePicker date={startDate} onDateChange={setStartDate} />
+						</div>
 					</CardHeader>
 					<CardContent>
 						<DynamicContent
@@ -145,12 +154,30 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 					</CardContent>
 				</Card>
 			) : (
-				<DynamicContent
-					data={airQualityData}
-					isPending={isLoading && airQualityData.length === 0}
-					error={isError}
-					renderContent={renderAirQualityChart}
-				/>
+				<>
+					{/* For organizational bins page view */}
+					<div
+						className="absolute top-2 right-2 z-10"
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => {
+							if (e.key === "Enter" || e.key === " ") {
+								e.stopPropagation();
+							}
+						}}
+					>
+						<DatePicker
+							date={startDate}
+							onDateChange={setStartDate}
+							className="h-7 px-2 py-1 text-xs"
+						/>
+					</div>
+					<DynamicContent
+						data={airQualityData}
+						isPending={isLoading && airQualityData.length === 0}
+						error={isError}
+						renderContent={renderAirQualityChart}
+					/>
+				</>
 			)}
 		</div>
 	);

@@ -23,6 +23,7 @@ interface UseChartDataOptions {
 	binId: string;
 	timeRange: TimeRange;
 	dataKey: "avgFulnessPercentage" | "avgAirQualityPpm";
+	startDate?: Date;
 }
 
 /**
@@ -33,13 +34,18 @@ export function useChartData({
 	binId,
 	timeRange,
 	dataKey,
+	startDate,
 }: UseChartDataOptions) {
+	const timeRangeParams = useMemo(() => {
+		return getTimeRangeParams(timeRange, startDate);
+	}, [timeRange, startDate]);
+
 	// Fetch statistics from the API
 	const query = useQuery(
 		trpc.bins.statistics.queryOptions(
 			{
 				activatedBinId: Number(binId),
-				...getTimeRangeParams(timeRange),
+				...timeRangeParams,
 			},
 			{
 				staleTime: QUERY.STALE_TIME,

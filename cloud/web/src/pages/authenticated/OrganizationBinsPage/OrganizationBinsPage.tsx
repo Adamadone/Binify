@@ -10,6 +10,7 @@ import { Layout } from "@/components/Layout/Layout";
 import { Pagination } from "@/components/Pagination";
 import { Button } from "@/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
+import { DatePicker } from "@/components/datepicker";
 import {
 	Table,
 	TableBody,
@@ -34,6 +35,9 @@ export const OrganizationBinsPage = () => {
 	const navigate = useNavigate();
 	const [page, setPage] = useState(0);
 	const [isActivateDialogOpen, setIsActivateDialogOpen] = useState(false);
+	const [binDates, setBinDates] = useState<Record<string, Date | undefined>>(
+		{},
+	);
 	const [binToDeactivate, setBinToDeactivate] = useState<{
 		id: number;
 		name: string;
@@ -96,37 +100,64 @@ export const OrganizationBinsPage = () => {
 						</CardHeader>
 						<CardContent>
 							<p className="text-sm text-muted-foreground mb-6">
-								Showing averaged measurement data for the past 24 hours since
-								the last measurement of each device.
+								Showing averaged measurement data for the past 24 hours from the
+								chosen date.
 							</p>
 							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-								{list.bins.map((bin) => (
-									<Card
-										key={`chart-${bin.id}`}
-										className="shadow-sm cursor-pointer transition-shadow hover:shadow-md"
-										onClick={() =>
-											navigate({
-												to: "/devices/$binId",
-												params: { binId: bin.id.toString() },
-											})
-										}
-									>
-										<CardHeader className="pb-2">
-											<CardTitle className="text-base">
-												{bin.name || `Bin ${bin.id}`}
-											</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<FullnessChart
-												binId={bin.id.toString()}
-												initialTimeRange="24h"
-												showTimeRangeSelector={false}
-												height={200}
-												className="overflow-hidden"
-											/>
-										</CardContent>
-									</Card>
-								))}
+								{list.bins.map((bin) => {
+									const binId = bin.id.toString();
+
+									return (
+										<Card
+											key={`chart-${bin.id}`}
+											className="shadow-sm cursor-pointer transition-shadow hover:shadow-md"
+											onClick={() =>
+												navigate({
+													to: "/devices/$binId",
+													params: { binId },
+												})
+											}
+										>
+											<CardHeader className="pb-2 flex flex-row items-center justify-between">
+												<CardTitle className="text-base">
+													{bin.name || `Bin ${bin.id}`}
+												</CardTitle>
+												<div
+													onClick={(e) => e.stopPropagation()}
+													onKeyDown={(e) => {
+														if (e.key === "Enter" || e.key === " ") {
+															e.stopPropagation();
+														}
+													}}
+													className="z-10"
+												>
+													<DatePicker
+														date={binDates[binId]}
+														onDateChange={(date) => {
+															setBinDates((prev) => ({
+																...prev,
+																[binId]: date,
+															}));
+														}}
+														className="h-7 px-2 py-1 text-xs"
+													/>
+												</div>
+											</CardHeader>
+											<CardContent>
+												<div className="relative">
+													<FullnessChart
+														binId={binId}
+														initialTimeRange="24h"
+														showTimeRangeSelector={false}
+														startDate={binDates[binId]}
+														height={200}
+														className="overflow-hidden"
+													/>
+												</div>
+											</CardContent>
+										</Card>
+									);
+								})}
 							</div>
 						</CardContent>
 					</Card>
@@ -184,7 +215,7 @@ export const OrganizationBinsPage = () => {
 				</Card>
 			</>
 		),
-		[navigate, isAdmin, page],
+		[navigate, isAdmin, page, binDates],
 	);
 
 	// Redirect if no organization is selected

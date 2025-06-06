@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { ChartContainer, ChartTooltip } from "@/components/chart";
 import { type FC, useCallback, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { DatePicker } from "../../../../components/datepicker";
 import { useChartData } from "../../../../hooks/useChartData";
 import { CHART, TIME_RANGE } from "../constants";
 import type { TimeRange } from "../types";
@@ -17,6 +18,9 @@ interface FullnessChartProps {
 	showTimeRangeSelector?: boolean;
 	height?: number;
 	className?: string;
+	startDate?: Date;
+	onDateChange?: (date?: Date) => void;
+	showDatePicker?: boolean;
 }
 
 export const FullnessChart: FC<FullnessChartProps> = ({
@@ -25,8 +29,16 @@ export const FullnessChart: FC<FullnessChartProps> = ({
 	showTimeRangeSelector = true,
 	height = CHART.DEFAULT_HEIGHT,
 	className,
+	startDate: externalStartDate,
+	onDateChange: externalOnDateChange,
 }) => {
 	const [timeRange, setTimeRange] = useState<TimeRange>(initialTimeRange);
+	const [internalStartDate, setInternalStartDate] = useState<Date | undefined>(
+		undefined,
+	);
+	const startDate =
+		externalStartDate !== undefined ? externalStartDate : internalStartDate;
+	const onDateChange = externalOnDateChange || setInternalStartDate;
 
 	// Use the custom hook for data fetching and processing
 	const {
@@ -38,6 +50,7 @@ export const FullnessChart: FC<FullnessChartProps> = ({
 		binId,
 		timeRange,
 		dataKey: "avgFulnessPercentage",
+		startDate,
 	});
 
 	// Chart rendering function
@@ -133,7 +146,13 @@ export const FullnessChart: FC<FullnessChartProps> = ({
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
 						<CardTitle>Fullness Percentage</CardTitle>
-						<TimeRangeSelector timeRange={timeRange} onChange={setTimeRange} />
+						<div className="flex items-center gap-2">
+							<TimeRangeSelector
+								timeRange={timeRange}
+								onChange={setTimeRange}
+							/>
+							<DatePicker date={startDate} onDateChange={onDateChange} />
+						</div>
 					</CardHeader>
 					<CardContent>
 						<DynamicContent
