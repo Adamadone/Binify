@@ -296,7 +296,7 @@ export const listBinsToAlert = () =>
 				-- Should repeat alert?
 				OR (
 					alertSource."repeatMinutes" IS NOT NULL
-					AND lastSentAlert.at + interval '1  minute' * alertSource."repeatMinutes" < latestMeasurement."measuredAt"
+					AND lastSentAlert.at + interval '1  minute' * alertSource."repeatMinutes" <= ${new Date()}
 				)
 				-- Was alert never sent?
 				OR lastSentAlert IS NULL
