@@ -146,7 +146,10 @@ export const listOrganizationSentAlerts = (
 					activatedBin: { binId: filter.binId },
 					at: { gte: filter.fromDate, lte: filter.toDate },
 				},
-				include: { alertSource: { include: { telegramAlertSource: true } } },
+				include: {
+					alertSource: { include: { telegramAlertSource: true } },
+					activatedBin: true,
+				},
 			}),
 			prismaClient.sentAlert.count({
 				where: { alertSource: { organizationId } },
