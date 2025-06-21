@@ -1,6 +1,6 @@
 import { useStorage } from "@/context/StorageContext";
 import { trpc } from "@/libs/trpc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { enqueueSnackbar } from "notistack";
 import { useEffect } from "react";
@@ -18,12 +18,28 @@ export const TokenCallbackPage = () => {
 		trpc.accounts.retrieveToken.mutationOptions(),
 	);
 
+	const { refetch: refetchOrganizations } = useQuery(
+		trpc.organizations.listForCurrentUser.queryOptions(undefined, {
+			enabled: false,
+		}),
+	);
+
 	useEffect(() => {
 		retrieveToken(
 			{ code: search.code },
 			{
 				onSuccess: ({ token }) => {
 					storage.set("token", token);
+
+					if (storage.data.activeOrgId !== undefined) {
+						navigate({ to: loginRoute.fullPath });
+					}
+
+					refetchOrganizations().then((res) => {
+						const firstOrgId = res.data?.[0]?.id;
+						if (firstOrgId !== undefined)
+							storage.set("activeOrgId", firstOrgId);
+					});
 					navigate({ to: homeRoute.fullPath });
 				},
 				onError: () => {
@@ -35,7 +51,14 @@ export const TokenCallbackPage = () => {
 				},
 			},
 		);
-	}, [search.code, storage.set, navigate, retrieveToken]);
+	}, [
+		search.code,
+		storage.set,
+		navigate,
+		retrieveToken,
+		refetchOrganizations,
+		storage.data.activeOrgId,
+	]);
 
 	return null;
 };
