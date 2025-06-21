@@ -13,7 +13,7 @@ export const Pagination = ({
 	pageSize,
 	total,
 }: PaginationProps) => {
-	const totalPages = Math.ceil(total / pageSize);
+	const totalPages = Math.ceil(total / pageSize) || 1;
 
 	return (
 		<div className="flex items-center">
