@@ -75,6 +75,7 @@ export const GlobalBinsPage = () => {
 						: undefined}
 				</TableCell>
 				<TableCell>{bin.activatedBin?.organization.name}</TableCell>
+				<TableCell>{bin.activatedBin?.name}</TableCell>
 			</TableRow>
 		));
 		return (
@@ -86,6 +87,7 @@ export const GlobalBinsPage = () => {
 							<TableHead>Activation code</TableHead>
 							<TableHead>Activated at</TableHead>
 							<TableHead>Organization</TableHead>
+							<TableHead>Bin Name</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>{mappedRows}</TableBody>

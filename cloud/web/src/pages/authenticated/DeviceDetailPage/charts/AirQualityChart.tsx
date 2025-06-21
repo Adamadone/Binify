@@ -1,9 +1,9 @@
+import { DateNavigator } from "@/components/DateNavigator";
 import { DynamicContent } from "@/components/DynamicContent";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { ChartContainer, ChartTooltip } from "@/components/chart";
 import { type FC, useCallback, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { DatePicker } from "../../../../components/datepicker";
 import { type ChartData, useChartData } from "../../../../hooks/useChartData";
 import { CHART, TIME_RANGE } from "../constants";
 import type { TimeRange } from "../types";
@@ -82,9 +82,16 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 							domain={["dataMin", "dataMax"]}
 							tickFormatter={(ts) => {
 								const date = new Date(ts);
-								return timeRange === "24h"
-									? formatTime(date)
-									: `${date.getUTCDate()}/${date.getUTCMonth() + 1}`;
+								if (timeRange === "5m") {
+									const hours = String(date.getHours()).padStart(2, "0");
+									const minutes = String(date.getMinutes()).padStart(2, "0");
+									const seconds = String(date.getSeconds()).padStart(2, "0");
+									return `${hours}:${minutes}:${seconds}`;
+								}
+								if (timeRange === "24h") {
+									return formatTime(date);
+								}
+								return `${date.getUTCDate()}/${date.getUTCMonth() + 1}`;
 							}}
 							tickLine={false}
 							axisLine={false}
@@ -92,15 +99,49 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 							ticks={generateTicks(airQualityData, timeRange)}
 						/>
 						<YAxis
+							hide={false}
 							tickLine={false}
 							axisLine={false}
-							fontSize={12}
-							width={80}
-							unit=" ppm"
-							domain={["auto", "auto"]}
-							padding={{ top: 15, bottom: 0 }}
-							tickMargin={5}
+							fontSize={11}
+							width={50}
+							domain={[0, (dataMax: number) => Math.max(dataMax, 2500)]}
+							ticks={[800, 1400, 2001]}
+							tickFormatter={(value) => {
+								if (value <= 800) return "Safe";
+								if (value <= 2000) return "Normal";
+								return "Dangerous";
+							}}
+							tick={(props) => {
+								const { y, payload } = props;
+								const value = payload.value;
+								let color = "#22c55e"; // green for safe
+
+								if (value === 1400) {
+									color = "#eab308"; // yellow for normal
+								} else if (value === 2001) {
+									color = "#ef4444"; // red for dangerous
+								}
+
+								return (
+									<text
+										x={props.x}
+										y={y}
+										dy={4}
+										textAnchor="end"
+										fontSize={11}
+										fontWeight="bold"
+										style={{ fill: color, color: color }}
+									>
+										{value <= 800
+											? "Safe"
+											: value <= 2000
+												? "Normal"
+												: "Dangerous"}
+									</text>
+								);
+							}}
 						/>
+
 						<ChartTooltip
 							cursor={false}
 							content={({ active, payload }) => (
@@ -118,9 +159,9 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 						<Line
 							dataKey="avgAirQualityPpm"
 							type="monotone"
-							stroke={CHART.COLORS.AIR_QUALITY.GOOD}
+							stroke="#3b82f6"
 							strokeWidth={2}
-							dot={timeRange !== "24h"}
+							dot={true}
 							isAnimationActive={false}
 						/>
 					</LineChart>
@@ -141,7 +182,11 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 								timeRange={timeRange}
 								onChange={setTimeRange}
 							/>
-							<DatePicker date={startDate} onDateChange={setStartDate} />
+							<DateNavigator
+								date={startDate}
+								onDateChange={setStartDate}
+								timeRange={timeRange}
+							/>
 						</div>
 					</CardHeader>
 					<CardContent>
@@ -165,10 +210,11 @@ export const AirQualityChart: FC<AirQualityChartProps> = ({
 							}
 						}}
 					>
-						<DatePicker
+						<DateNavigator
 							date={startDate}
 							onDateChange={setStartDate}
-							className="h-7 px-2 py-1 text-xs"
+							timeRange="24h"
+							className="h-7 text-xs"
 						/>
 					</div>
 					<DynamicContent

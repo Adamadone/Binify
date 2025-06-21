@@ -11,17 +11,12 @@ export const CHART = {
 	// Margins
 	MARGINS: {
 		FULLNESS: { top: 5, right: 10, left: -10, bottom: 5 },
-		AIR_QUALITY: { top: 5, right: 10, left: -10, bottom: 10 },
+		AIR_QUALITY: { top: 5, right: 10, left: 15, bottom: 10 },
 	},
 
 	// Colors
 	COLORS: {
 		FULLNESS: "#3b82f6", // blue
-		AIR_QUALITY: {
-			GOOD: "green",
-			WARNING: "orange",
-			DANGER: "red",
-		},
 	},
 
 	// Air quality thresholds (ppm)
@@ -45,6 +40,7 @@ export const QUERY = {
 export const TIME_RANGE = {
 	DEFAULT: "24h" as TimeRange,
 	LABELS: {
+		"5m": "Last 5 Minutes",
 		"24h": "Last 24 Hours",
 		"7d": "Last 7 Days",
 		"30d": "Last 30 Days",
@@ -52,6 +48,7 @@ export const TIME_RANGE = {
 
 	// Time intervals in milliseconds
 	MILLISECONDS: {
+		"5m": 5 * 60 * 1000,
 		"24h": 24 * 60 * 60 * 1000,
 		"7d": 7 * 24 * 60 * 60 * 1000,
 		"30d": 30 * 24 * 60 * 60 * 1000,

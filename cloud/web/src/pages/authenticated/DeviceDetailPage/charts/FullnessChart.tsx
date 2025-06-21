@@ -1,9 +1,9 @@
+import { DateNavigator } from "@/components/DateNavigator";
 import { DynamicContent } from "@/components/DynamicContent";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { ChartContainer, ChartTooltip } from "@/components/chart";
 import { type FC, useCallback, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { DatePicker } from "../../../../components/datepicker";
 import { useChartData } from "../../../../hooks/useChartData";
 import { CHART, TIME_RANGE } from "../constants";
 import type { TimeRange } from "../types";
@@ -90,9 +90,16 @@ export const FullnessChart: FC<FullnessChartProps> = ({
 						domain={["dataMin", "dataMax"]}
 						tickFormatter={(ts) => {
 							const date = new Date(ts);
-							return timeRange === "24h"
-								? formatTime(date)
-								: `${date.getUTCDate()}/${date.getUTCMonth() + 1}`;
+							if (timeRange === "5m") {
+								const hours = String(date.getHours()).padStart(2, "0");
+								const minutes = String(date.getMinutes()).padStart(2, "0");
+								const seconds = String(date.getSeconds()).padStart(2, "0");
+								return `${hours}:${minutes}:${seconds}`;
+							}
+							if (timeRange === "24h") {
+								return formatTime(date);
+							}
+							return `${date.getUTCDate()}/${date.getUTCMonth() + 1}`;
 						}}
 						tickLine={false}
 						axisLine={false}
@@ -125,7 +132,7 @@ export const FullnessChart: FC<FullnessChartProps> = ({
 						type="monotone"
 						stroke={CHART.COLORS.FULLNESS}
 						strokeWidth={2}
-						dot={timeRange !== "24h"}
+						dot={true}
 						isAnimationActive={false}
 					/>
 				</LineChart>
@@ -151,7 +158,11 @@ export const FullnessChart: FC<FullnessChartProps> = ({
 								timeRange={timeRange}
 								onChange={setTimeRange}
 							/>
-							<DatePicker date={startDate} onDateChange={onDateChange} />
+							<DateNavigator
+								date={startDate}
+								onDateChange={onDateChange}
+								timeRange={timeRange}
+							/>
 						</div>
 					</CardHeader>
 					<CardContent>

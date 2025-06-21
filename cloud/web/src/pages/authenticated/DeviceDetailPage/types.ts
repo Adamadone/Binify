@@ -1,6 +1,6 @@
 import type { TrpcOutputs } from "@bin/api";
 
-export type TimeRange = "24h" | "7d" | "30d";
+export type TimeRange = "5m" | "24h" | "7d" | "30d";
 
 export type ActivatedBin =
 	TrpcOutputs["bins"]["listActivatedForOrganization"]["bins"][0];

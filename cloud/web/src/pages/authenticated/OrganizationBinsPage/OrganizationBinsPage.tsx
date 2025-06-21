@@ -115,6 +115,7 @@ export const OrganizationBinsPage = () => {
 												navigate({
 													to: "/devices/$binId",
 													params: { binId },
+													search: { binName: bin.name },
 												})
 											}
 										>

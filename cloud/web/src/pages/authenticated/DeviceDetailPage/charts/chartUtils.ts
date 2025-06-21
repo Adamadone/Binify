@@ -14,6 +14,7 @@ export const chartConfig = {
 
 // Time intervals for different time range views
 export const TIME_RANGE_MINUTES = {
+	"5m": 0.5,
 	"24h": 60,
 	"7d": 24 * 60,
 	"30d": 1440,
@@ -21,6 +22,7 @@ export const TIME_RANGE_MINUTES = {
 
 // Milliseconds for each time range
 export const TIME_RANGE_MILLISECONDS = {
+	"5m": 5 * 60 * 1000,
 	"24h": 24 * 60 * 60 * 1000,
 	"7d": 7 * 24 * 60 * 60 * 1000,
 	"30d": 30 * 24 * 60 * 60 * 1000,
@@ -28,6 +30,7 @@ export const TIME_RANGE_MILLISECONDS = {
 
 // Display labels for time ranges
 export const TIME_RANGE_LABELS = {
+	"5m": "Last 5 Minutes",
 	"24h": "Last 24 Hours",
 	"7d": "Last 7 Days",
 	"30d": "Last 30 Days",
@@ -56,16 +59,37 @@ export const generateTicks = (
 			? last.intervalStart
 			: new Date(last.intervalStart).getTime();
 
-	// 3) if 7‑day view, force exactly 7 daily ticks
-	if (timeRange === "7d") {
-		const oneDay = TIME_RANGE_MILLISECONDS["24h"];
-		return Array.from({ length: 7 }, (_, i) => firstTs + i * oneDay);
+	if (timeRange === "5m") {
+		const dataTimestamps = data.map((d) =>
+			typeof d.intervalStart === "number"
+				? d.intervalStart
+				: new Date(d.intervalStart).getTime(),
+		);
+
+		if (dataTimestamps.length <= 10) {
+			return dataTimestamps;
+		}
+		const step = Math.ceil(dataTimestamps.length / 10);
+		const result: number[] = [];
+		for (let i = 0; i < dataTimestamps.length; i += step) {
+			const timestamp = dataTimestamps[i];
+			if (timestamp !== undefined) {
+				result.push(timestamp);
+			}
+		}
+		const lastTimestamp = dataTimestamps[dataTimestamps.length - 1];
+		if (
+			lastTimestamp !== undefined &&
+			result[result.length - 1] !== lastTimestamp
+		) {
+			result.push(lastTimestamp);
+		}
+		return result;
 	}
 
-	// Determine interval based on time range
 	let interval: number;
 	if (!timeRange || timeRange === "24h") {
-		interval = 6 * 60 * 60 * 1000; // 6 hours for 24h view
+		interval = 2 * 60 * 60 * 1000; // 2 hours for 24h view
 	} else if (timeRange === "30d") {
 		interval = 7 * 24 * 60 * 60 * 1000; // 1 week for 30d view
 	} else {
@@ -98,7 +122,23 @@ export const getTimeRangeParams = (
 
 	const endTime = referenceDate ? new Date(referenceDate) : new Date();
 
-	if (referenceDate) {
+	if (referenceDate && selectedRange === "24h") {
+		const startTime = new Date(referenceDate);
+		startTime.setHours(0, 0, 0, 0);
+
+		const nextDay = new Date(referenceDate);
+		nextDay.setDate(nextDay.getDate() + 1);
+		nextDay.setHours(0, 0, 0, 0);
+
+		return {
+			from: startTime.toISOString(),
+			to: nextDay.toISOString(),
+			groupByMinutes: groupByMins,
+		};
+	}
+
+	// Keep exact time for 5m view
+	if (referenceDate && selectedRange !== "5m") {
 		endTime.setHours(23, 59, 59, 999);
 	}
 
@@ -106,7 +146,9 @@ export const getTimeRangeParams = (
 		endTime.getTime() - TIME_RANGE_MILLISECONDS[selectedRange],
 	);
 
-	if (groupByMins === 60) {
+	// For 5m view, ensure we keep seconds precision
+	if (selectedRange === "5m") {
+	} else if (groupByMins === 60) {
 		startTime.setUTCMinutes(0, 0, 0);
 	} else if (groupByMins >= 1440) {
 		startTime.setUTCHours(0, 0, 0, 0);
@@ -115,6 +157,6 @@ export const getTimeRangeParams = (
 	return {
 		from: startTime.toISOString(),
 		to: endTime.toISOString(),
-		groupByMinutes: groupByMins,
+		groupByMinutes: selectedRange === "5m" ? 0.5 : groupByMins,
 	};
 };
