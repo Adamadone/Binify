@@ -119,10 +119,33 @@ export const alertsRouter = router({
 				organizationId: z.number(),
 				page: z.number().default(0),
 				pageSize: z.number().default(50),
+				filter: z
+					.object({
+						binId: z.number().optional(),
+						fromDate: z.string().datetime().optional(),
+						toDate: z.string().datetime().optional(),
+					})
+					.optional(),
 			}),
 		)
 		.query(async ({ input, ctx }) =>
-			(await listOrganizationSentAlerts(input, ctx.user)).match(
+			(
+				await listOrganizationSentAlerts(
+					{
+						...input,
+						filter: {
+							...input.filter,
+							fromDate: input.filter?.fromDate
+								? new Date(input.filter.fromDate)
+								: undefined,
+							toDate: input.filter?.toDate
+								? new Date(input.filter.toDate)
+								: undefined,
+						},
+					},
+					ctx.user,
+				)
+			).match(
 				(sentAlerts) => sentAlerts,
 				(err) => {
 					switch (err) {

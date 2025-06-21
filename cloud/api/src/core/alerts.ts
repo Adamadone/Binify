@@ -122,9 +122,10 @@ export type ListOrganizationSentAlertsParams = {
 	organizationId: number;
 	page: number;
 	pageSize: number;
+	filter: { binId?: number; fromDate?: Date; toDate?: Date };
 };
 export const listOrganizationSentAlerts = (
-	{ organizationId, page, pageSize }: ListOrganizationSentAlertsParams,
+	{ organizationId, page, pageSize, filter }: ListOrganizationSentAlertsParams,
 	currentUser: User,
 ) =>
 	prismaClient.$transaction(async (tx) => {
@@ -140,7 +141,11 @@ export const listOrganizationSentAlerts = (
 			prismaClient.sentAlert.findMany({
 				skip: page * pageSize,
 				take: pageSize,
-				where: { alertSource: { organizationId } },
+				where: {
+					alertSource: { organizationId },
+					activatedBin: { binId: filter.binId },
+					at: { gte: filter.fromDate, lte: filter.toDate },
+				},
 				include: { alertSource: { include: { telegramAlertSource: true } } },
 			}),
 			prismaClient.sentAlert.count({
