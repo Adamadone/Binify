@@ -117,8 +117,8 @@ pub fn HttpClient(comptime host_ip: []const u8, comptime host_port: u16) type {
                 picoSdk.tcp_abort(this.conn_state.tcp_pcb);
             }
 
-            defer this.allocator.destroy(this.conn_state);
-            defer this.allocator.destroy(this);
+            this.allocator.destroy(this.conn_state);
+            this.allocator.destroy(this);
 
             _ = printf("TCP Connection closed\n");
         }
@@ -164,6 +164,7 @@ export fn tcp_data_received_callback(state_opaque: ?*anyopaque, tcp_pcb: [*c]pic
     }
 
     picoSdk.tcp_recved(tcp_pcb, buffer.*.tot_len);
+    _ = picoSdk.pbuf_free(buffer);
     state.received = 1;
 
     _ = picoSdk.printf("All data received\n");

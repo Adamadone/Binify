@@ -12,7 +12,7 @@ pub const AirSensor = struct {
     gpio_pin: u8 = 0,
     adc_pin: u8 = 0,
 
-    pub fn meausre_voltage(self: *const AirSensor) f32 {
+    pub fn measure_voltage(self: *const AirSensor) f32 {
         picoSdk.adc_init();
 
         picoSdk.gpio_init(self.gpio_pin);
