@@ -36,31 +36,60 @@ export const AlertDetailDialog = ({ open, alert, onClose }: Props) => {
 				</DialogHeader>
 
 				<div className="space-y-6 mt-4 text-sm">
-					<div className="space-y-1">
-						<p className="text-xs font-semibold text-muted-foreground uppercase">
-							Alert source
-						</p>
-						<p className="text-foreground">{alert.alertSource.name}</p>
-					</div>
-
-					<div className="space-y-1">
-						<p className="text-xs font-semibold text-muted-foreground uppercase">
-							Activated bin ID
-						</p>
-						<p className="text-foreground">{alert.activatedBinId}</p>
-					</div>
-
-					{alert.alertSource.repeatMinutes !== null && (
+					{/* Main two column grid */}
+					<div className="grid grid-cols-2 gap-x-6 gap-y-4">
+						{/* Bin name */}
 						<div className="space-y-1">
 							<p className="text-xs font-semibold text-muted-foreground uppercase">
-								Repeat interval
+								Bin name
 							</p>
 							<p className="text-foreground">
-								{alert.alertSource.repeatMinutes} minutes
+								{alert.activatedBin?.name || `Bin ${alert.activatedBinId}`}
 							</p>
 						</div>
-					)}
 
+						{/* Alert source name */}
+						<div className="space-y-1">
+							<p className="text-xs font-semibold text-muted-foreground uppercase">
+								Alert source name
+							</p>
+							<p className="text-foreground">{alert.alertSource.name}</p>
+						</div>
+
+						{/* Bin ID */}
+						<div className="space-y-1">
+							<p className="text-xs font-semibold text-muted-foreground uppercase">
+								Activated bin ID
+							</p>
+							<p className="text-foreground">{alert.activatedBinId}</p>
+						</div>
+
+						{/* Threshold */}
+						{alert.alertSource.thresholdPercent !== null && (
+							<div className="space-y-1">
+								<p className="text-xs font-semibold text-muted-foreground uppercase">
+									Threshold
+								</p>
+								<p className="text-foreground">
+									{alert.alertSource.thresholdPercent}%
+								</p>
+							</div>
+						)}
+
+						{/* Repeat interval */}
+						{alert.alertSource.repeatMinutes !== null && (
+							<div className="space-y-1">
+								<p className="text-xs font-semibold text-muted-foreground uppercase">
+									Frequency
+								</p>
+								<p className="text-foreground">
+									Every {alert.alertSource.repeatMinutes} minutes
+								</p>
+							</div>
+						)}
+					</div>
+
+					{/* Telegram block */}
 					{telegram && (
 						<div className="border-t pt-4 space-y-2">
 							<p className="text-sm font-semibold">Telegram Alert Target</p>

@@ -143,7 +143,7 @@ export const listOrganizationSentAlerts = (
 				take: pageSize,
 				where: {
 					alertSource: { organizationId },
-					activatedBin: { binId: filter.binId },
+					activatedBin: { id: filter.binId },
 					at: { gte: filter.fromDate, lte: filter.toDate },
 				},
 				include: {
