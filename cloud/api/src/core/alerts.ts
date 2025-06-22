@@ -150,6 +150,9 @@ export const listOrganizationSentAlerts = (
 					alertSource: { include: { telegramAlertSource: true } },
 					activatedBin: true,
 				},
+				orderBy: {
+					id: "desc",
+				},
 			}),
 			prismaClient.sentAlert.count({
 				where: { alertSource: { organizationId } },
@@ -266,7 +269,7 @@ export const listBinsToAlert = () =>
 			threshold."thresholdPercent" as "thresholdPercent",
 			(
 				SELECT
-					latestMeasurement."distanceCentimeters" * 100 / maxDistance."distanceCentimeters"
+					(100 - (latestMeasurement."distanceCentimeters" * 100 / maxDistance."distanceCentimeters"))
 			) AS "currentPercent"
 		FROM
 			"ActivatedBin" activatedBin
@@ -278,7 +281,7 @@ export const listBinsToAlert = () =>
 			AND lastSentAlert."alertSourceId" = alertSource.id
 		WHERE
 			-- Is now above threshold?
-			latestMeasurement."distanceCentimeters" >= threshold.threshold
+			latestMeasurement."distanceCentimeters" <= threshold.threshold
 			AND (
 				(
 					-- Was the measurement under threshold since last alert?
@@ -288,7 +291,7 @@ export const listBinsToAlert = () =>
 						FROM
 							"Measurement" measurement
 						WHERE
-							measurement."distanceCentimeters" < (threshold.threshold)
+							measurement."distanceCentimeters" > (threshold.threshold)
 							AND measurement."measuredAt" > (lastSentAlert.at)
 							AND measurement."measuredAt" < (latestMeasurement."measuredAt")
 					)

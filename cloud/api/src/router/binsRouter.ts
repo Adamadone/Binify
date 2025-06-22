@@ -159,8 +159,8 @@ export const binsRouter = router({
 						measurements: z.array(
 							z.object({
 								measuredAt: z.string().datetime(),
-								distanceCentimeters: z.number().positive(),
-								airQualityPpm: z.number().positive().max(1_000_000),
+								distanceCentimeters: z.number().min(0),
+								airQualityPpm: z.number().min(0).max(1_000_000),
 							}),
 						),
 					}),

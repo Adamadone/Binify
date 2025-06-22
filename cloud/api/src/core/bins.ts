@@ -284,20 +284,26 @@ export const getBinStatistics = async (
 	const statistics = statisticsRaw.map<BinStatisticInterval>((entry) => ({
 		intervalStart: new Date(entry.intervalStart),
 		maxDistanceCentimeters: entry.maxDistanceCentimeters,
-		maxFulnnessPercentage: calculcatePercentage(
-			entry.maxDistanceCentimeters,
-			globalMaxDistanceCentimeters,
-		),
+		maxFulnnessPercentage:
+			100 -
+			calculcatePercentage(
+				entry.maxDistanceCentimeters,
+				globalMaxDistanceCentimeters,
+			),
 		minDistanceCentimeters: entry.minDistanceCentimeters,
-		minFulnnessPercentage: calculcatePercentage(
-			entry.minDistanceCentimeters,
-			globalMaxDistanceCentimeters,
-		),
+		minFulnnessPercentage:
+			100 -
+			calculcatePercentage(
+				entry.minDistanceCentimeters,
+				globalMaxDistanceCentimeters,
+			),
 		avgDistanceCentimeters: entry.avgDistanceCentimeters,
-		avgFulnessPercentage: calculcatePercentage(
-			entry.avgDistanceCentimeters,
-			globalMaxDistanceCentimeters,
-		),
+		avgFulnessPercentage:
+			100 -
+			calculcatePercentage(
+				entry.avgDistanceCentimeters,
+				globalMaxDistanceCentimeters,
+			),
 		maxAirQualityPpm: entry.maxAirQualityPpm,
 		minAirQualityPpm: entry.minAirQualityPpm,
 		avgAirQualityPpm: entry.avgAirQualityPpm,
