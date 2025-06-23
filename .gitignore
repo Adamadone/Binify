@@ -1,3 +1,4 @@
 .zig-cache
 zig-out
 firmware/build
+cloud/api/.env
